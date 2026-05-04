@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import GameShelf.ms_usuario.model.Usuario;
 
-
+// Repositorio encargado de comunicarse con la base de datos de usuarios.
+// Extiende JpaRepository para usar operaciones CRUD básicas sin programarlas manualmente.
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 

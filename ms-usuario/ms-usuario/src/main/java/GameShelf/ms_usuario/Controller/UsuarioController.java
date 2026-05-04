@@ -15,6 +15,8 @@ import GameShelf.ms_usuario.Service.UsuarioService;
 import GameShelf.ms_usuario.model.Usuario;
 
 
+// Controlador REST del microservicio de usuarios.
+// Expone endpoints HTTP para crear, listar, buscar, actualizar y eliminar usuarios.
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import GameShelf.ms_usuario.model.Usuario;
 import GameShelf.ms_usuario.repository.UsuarioRepository;
 
+
+// Servicio que contiene la lógica principal del microservicio de usuarios.
+// Aquí se validan datos antes de guardar, actualizar o eliminar usuarios.
 @Service
 public class UsuarioService {
     @Autowired
