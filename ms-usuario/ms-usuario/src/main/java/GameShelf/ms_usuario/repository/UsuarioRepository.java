@@ -21,8 +21,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // 2. VALIDACIONES DE EXISTENCIA (Para el proceso de Registro/Sign Up)
     // Estos devuelven true o false. Es más rápido que traer todo el objeto.
     
-    boolean existsByEmail(String email);
-    boolean existsByUsername(String username);
+    boolean existsByCorreo(String correo);
+    boolean existsByUsuario(String usuario);
 
 
     // 3. BÚSQUEDAS DE LISTAS (Para administración)
@@ -31,12 +31,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     List<Usuario> findByRol(String rol);
 
     // Buscar usuarios cuyo nombre contenga una palabra (para buscadores con lupa)
-    List<Usuario> findByUsernameContainingIgnoreCase(String username);
+    List<Usuario> findByUsuarioContainingIgnoreCase(String username);
 
 
     // 4. BORRADO SEGURO
     
     // Borrar por email en lugar de solo por ID
-    void deleteByEmail(String email);
+    void deleteByCorreo(String correo);
 
 }
