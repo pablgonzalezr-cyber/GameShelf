@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import GameShelf.ms_usuario.Service.UsuarioService;
-import GameShelf.ms_usuario.model.Usuario;
+import GameShelf.ms_usuario.model.UsuarioModel;
 
 
 // Controlador REST del microservicio de usuarios.
@@ -24,7 +24,7 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioModel> crearUsuario(@RequestBody UsuarioModel usuario) {
         return new ResponseEntity<>(usuarioService.crearUsuario(usuario), HttpStatus.CREATED);
     }
 
@@ -34,12 +34,12 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarUsuario(@PathVariable Long id) {
+    public ResponseEntity<UsuarioModel> buscarUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioModel> actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioModel usuario) {
         return ResponseEntity.ok(usuarioService.actualizarUsuario(id, usuario));
     }
 

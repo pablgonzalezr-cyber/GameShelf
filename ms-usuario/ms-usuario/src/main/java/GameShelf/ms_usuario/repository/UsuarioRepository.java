@@ -6,18 +6,18 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import GameShelf.ms_usuario.model.Usuario;
+import GameShelf.ms_usuario.model.UsuarioModel;
 
 // Repositorio encargado de comunicarse con la base de datos de usuarios.
 // Extiende JpaRepository para usar operaciones CRUD básicas sin programarlas manualmente.
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
 
     // Buscar por email (Fundamental para login o recuperación de contraseña)
-    Optional<Usuario> findByCorreo (String correo);
+    Optional<UsuarioModel> findByCorreo (String correo);
 
     // Buscar por nombre de usuario (Para login)
-    Optional<Usuario> findByUsuario (String usuario);
+    Optional<UsuarioModel> findByUsuario (String usuario);
 
     // 2. VALIDACIONES DE EXISTENCIA (Para el proceso de Registro/Sign Up)
     // Estos devuelven true o false. Es más rápido que traer todo el objeto.
@@ -29,10 +29,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // 3. BÚSQUEDAS DE LISTAS (Para administración)
     
     // Buscar todos los usuarios que tienen un rol específico (ej: todos los "ADMIN")
-    List<Usuario> findByRol(String rol);
+    List<UsuarioModel> findByRol(String rol);
 
     // Buscar usuarios cuyo nombre contenga una palabra (para buscadores con lupa)
-    List<Usuario> findByUsuarioContainingIgnoreCase(String username);
+    List<UsuarioModel> findByUsuarioContainingIgnoreCase(String username);
 
 
     // 4. BORRADO SEGURO

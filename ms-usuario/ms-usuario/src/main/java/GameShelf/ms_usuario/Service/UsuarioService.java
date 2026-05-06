@@ -5,7 +5,7 @@ import  java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import GameShelf.ms_usuario.model.Usuario;
+import GameShelf.ms_usuario.model.UsuarioModel;
 import GameShelf.ms_usuario.repository.UsuarioRepository;
 
 
@@ -16,7 +16,7 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Usuario crearUsuario(Usuario usuario) {
+    public UsuarioModel crearUsuario(UsuarioModel usuario) {
 
         if (usuarioRepository.existsByUsuario(usuario.getUsuario())) {
             throw new RuntimeException("El nombre de usuario ya existe.");
@@ -33,18 +33,18 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public List<Usuario> listarUsuarios() {
+    public List<UsuarioModel> listarUsuarios() {
         return usuarioRepository.findAll();
     }
 
-    public Usuario buscarPorId(Long id) {
+    public UsuarioModel buscarPorId(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
     }
 
-    public Usuario actualizarUsuario(Long id, Usuario datosUsuario) {
+    public UsuarioModel actualizarUsuario(Long id, UsuarioModel datosUsuario) {
 
-        Usuario usuario = buscarPorId(id);
+        UsuarioModel usuario = buscarPorId(id);
 
         usuario.setUsuario(datosUsuario.getUsuario());
         usuario.setCorreo(datosUsuario.getCorreo());
@@ -59,16 +59,16 @@ public class UsuarioService {
 
     public void eliminarUsuario(Long id) {
 
-        Usuario usuario = buscarPorId(id);
+        UsuarioModel usuario = buscarPorId(id);
 
         usuarioRepository.delete(usuario);
     }
 
-    public List<Usuario> buscarPorRol(String rol) {
+    public List<UsuarioModel> buscarPorRol(String rol) {
         return usuarioRepository.findByRol(rol);
     }
 
-    public List<Usuario> buscarPorNombre(String usuario) {
+    public List<UsuarioModel> buscarPorNombre(String usuario) {
         return usuarioRepository.findByUsuarioContainingIgnoreCase(usuario);
     }
 }
