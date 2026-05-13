@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import GameShelf.ms_usuario.client.RolClient;
+import GameShelf.ms_usuario.dto.RolResponseDTO;
 import GameShelf.ms_usuario.dto.UsuarioRequestDTO;
 import GameShelf.ms_usuario.dto.UsuarioResponseDTO;
 import GameShelf.ms_usuario.model.UsuarioModel;
@@ -16,11 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final RolClient rolClient;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolClient rolClient) {
         this.usuarioRepository = usuarioRepository;
+        this.rolClient = rolClient;
     }
-
+    
     @Override
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO usuarioRequestDTO) {
 
@@ -38,12 +42,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setUsuario(usuarioRequestDTO.getUsuario());
         usuario.setContrasena(usuarioRequestDTO.getContrasena());
         usuario.setCorreo(usuarioRequestDTO.getCorreo());
-
-        if (usuarioRequestDTO.getRol() == null || usuarioRequestDTO.getRol().isEmpty()) {
-            usuario.setRol("CLIENTE");
-        } else {
-            usuario.setRol(usuarioRequestDTO.getRol());
-        }
+        usuario.setRol(validarRol(usuarioRequestDTO.getRol()));
+        
 
         UsuarioModel usuarioGuardado = usuarioRepository.save(usuario);
 
@@ -94,7 +94,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         if (usuarioRequestDTO.getRol() != null && !usuarioRequestDTO.getRol().isEmpty()) {
-            usuario.setRol(usuarioRequestDTO.getRol());
+            usuario.setRol(validarRol(usuarioRequestDTO.getRol()));
         }
 
         UsuarioModel usuarioActualizado = usuarioRepository.save(usuario);
@@ -145,6 +145,21 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         return respuesta;
+    }
+
+    private String validarRol(String nombreRol) {
+
+        if (nombreRol == null || nombreRol.isEmpty()) {
+        nombreRol = "CLIENTE";
+        }
+
+        RolResponseDTO rol = rolClient.buscarRolPorNombre(nombreRol);
+
+        if (!rol.getEstado().equalsIgnoreCase("ACTIVO")) {
+        throw new RuntimeException("El rol no está activo");
+        }
+
+        return rol.getNombre();
     }
 
     private UsuarioResponseDTO convertirAResponseDTO(UsuarioModel usuario) {
