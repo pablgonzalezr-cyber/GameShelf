@@ -1,75 +1,23 @@
 package GameShelf.ms_usuario.Service;
 
-import  java.util.List;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import GameShelf.ms_usuario.dto.UsuarioRequestDTO;
+import GameShelf.ms_usuario.dto.UsuarioResponseDTO;
 
-import GameShelf.ms_usuario.model.UsuarioModel;
-import GameShelf.ms_usuario.repository.UsuarioRepository;
+public interface UsuarioService {
 
+    UsuarioResponseDTO crearUsuario(UsuarioRequestDTO usuarioRequestDTO);
 
-// Servicio que contiene la lógica principal del microservicio de usuarios.
-// Aquí se validan datos antes de guardar, actualizar o eliminar usuarios.
-@Service
-public class UsuarioService {
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    List<UsuarioResponseDTO> listarUsuarios();
 
-    public UsuarioModel crearUsuario(UsuarioModel usuario) {
+    UsuarioResponseDTO buscarPorId(Long id);
 
-        if (usuarioRepository.existsByUsuario(usuario.getUsuario())) {
-            throw new RuntimeException("El nombre de usuario ya existe.");
-        }
+    UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO);
 
-        if (usuarioRepository.existsByCorreo(usuario.getCorreo())) {
-            throw new RuntimeException("El correo ya está registrado.");
-        }
+    void eliminarUsuario(Long id);
 
-        if (usuario.getRol() == null || usuario.getRol().isEmpty()) {
-            usuario.setRol("CLIENTE");
-        }
+    List<UsuarioResponseDTO> buscarPorRol(String rol);
 
-        return usuarioRepository.save(usuario);
-    }
-
-    public List<UsuarioModel> listarUsuarios() {
-        return usuarioRepository.findAll();
-    }
-
-    public UsuarioModel buscarPorId(Long id) {
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
-    }
-
-    public UsuarioModel actualizarUsuario(Long id, UsuarioModel datosUsuario) {
-
-        UsuarioModel usuario = buscarPorId(id);
-
-        usuario.setUsuario(datosUsuario.getUsuario());
-        usuario.setCorreo(datosUsuario.getCorreo());
-        usuario.setRol(datosUsuario.getRol());
-
-        if (datosUsuario.getContrasena() != null && !datosUsuario.getContrasena().isEmpty()) {
-            usuario.setContrasena(datosUsuario.getContrasena());
-        }
-
-        return usuarioRepository.save(usuario);
-    }
-
-    public void eliminarUsuario(Long id) {
-
-        UsuarioModel usuario = buscarPorId(id);
-
-        usuarioRepository.delete(usuario);
-    }
-
-    public List<UsuarioModel> buscarPorRol(String rol) {
-        return usuarioRepository.findByRol(rol);
-    }
-
-    public List<UsuarioModel> buscarPorNombre(String usuario) {
-        return usuarioRepository.findByUsuarioContainingIgnoreCase(usuario);
-    }
+    List<UsuarioResponseDTO> buscarPorNombre(String usuario);
 }
-
