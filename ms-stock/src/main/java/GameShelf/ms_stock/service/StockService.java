@@ -2,42 +2,24 @@ package GameShelf.ms_stock.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import GameShelf.ms_stock.dto.StockRequestDTO;
+import GameShelf.ms_stock.dto.StockResponseDTO;
 
-import GameShelf.ms_stock.model.StockModel;
-import GameShelf.ms_stock.repository.StockRepository;
+public interface StockService {
 
-@Service
-public class StockService {
-    @Autowired
-    private StockRepository stockRepository;
+    StockResponseDTO crearStock(StockRequestDTO stockRequestDTO);
 
-    public StockModel guardar(StockModel stock) {
-        // Si ya existe stock para ese videojuego, podríamos lanzar error o actualizar
-        if(stockRepository.findByVideojuegoId(stock.getVideojuegoId()).isPresent()){
-            throw new RuntimeException("Ya existe un registro de stock para este videojuego.");
-        }
-        return stockRepository.save(stock);
-    }
+    List<StockResponseDTO> listarStocks();
 
-    public List<StockModel> listarTodo() {
-        return stockRepository.findAll();
-    }
+    StockResponseDTO buscarPorId(Long id);
 
-    public StockModel buscarPorVideojuego(Long videojuegoId) {
-        return stockRepository.findByVideojuegoId(videojuegoId)
-                .orElseThrow(() -> new RuntimeException("No hay registro de stock para el videojuego: " + videojuegoId));
-    }
+    StockResponseDTO buscarPorVideojuego(Long videojuegoId);
 
-    // Método para cuando se presta un juego 
-    public StockModel reducirStock(Long videojuegoId) {
-        StockModel stock = buscarPorVideojuego(videojuegoId);
-        if (stock.getCantidadDisponible() <= 0) {
-            throw new RuntimeException("No hay copias disponibles para préstamo.");
-        }
-        stock.setCantidadDisponible(stock.getCantidadDisponible() - 1);
-        return stockRepository.save(stock);
-    }
+    StockResponseDTO actualizarStock(Long id, StockRequestDTO stockRequestDTO);
 
+    StockResponseDTO reducirStock(Long videojuegoId);
+
+    StockResponseDTO aumentarStock(Long videojuegoId);
+
+    List<StockResponseDTO> listarPorEstado(String estado);
 }

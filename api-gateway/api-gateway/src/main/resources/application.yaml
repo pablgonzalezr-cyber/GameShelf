@@ -33,7 +33,7 @@ spring:
         - id: ms-stock
           uri: lb://ms-stock
           predicates:
-            - Path=/api/stock/**
+            - Path=/api/stocks/**
 
         - id: ms-prestamo
           uri: lb://ms-prestamo
