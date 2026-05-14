@@ -2,35 +2,24 @@ package GameShelf.ms_videojuego.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import GameShelf.ms_videojuego.dto.VideoJuegoRequestDTO;
+import GameShelf.ms_videojuego.dto.VideoJuegoResponseDTO;
 
-import GameShelf.ms_videojuego.model.VideoJuegoModel;
-import GameShelf.ms_videojuego.repository.VideoJuegoRepository;
+public interface VideoJuegoService {
 
-public class VideoJuegoService {
-    
-    @Autowired
-    private VideoJuegoRepository videojuegoRepository;
+    VideoJuegoResponseDTO crearVideoJuego(VideoJuegoRequestDTO videoJuegoRequestDTO);
 
-    public VideoJuegoModel guardar(VideoJuegoModel videojuego) {
-        return videojuegoRepository.save(videojuego);
-    }
+    List<VideoJuegoResponseDTO> listarVideoJuegos();
 
-    public List<VideoJuegoModel> listarTodos() {
-        return videojuegoRepository.findAll();
-    }
+    VideoJuegoResponseDTO buscarPorId(Long id);
 
-    public VideoJuegoModel buscarPorId(Long id) {
-        return videojuegoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Videojuego no encontrado con ID: " + id));
-    }
+    VideoJuegoResponseDTO actualizarVideoJuego(Long id, VideoJuegoRequestDTO videoJuegoRequestDTO);
 
-    public List<VideoJuegoModel> listarPorCategoria(Long categoriaId) {
-        return videojuegoRepository.findByCategoriaId(categoriaId);
-    }
+    void eliminarVideoJuego(Long id);
 
-    public void eliminar(Long id) {
-        VideoJuegoModel v = buscarPorId(id);
-        videojuegoRepository.delete(v);
-    }
+    List<VideoJuegoResponseDTO> listarPorCategoria(Long categoriaId);
+
+    List<VideoJuegoResponseDTO> buscarPorTitulo(String titulo);
+
+    List<VideoJuegoResponseDTO> listarPorEstado(String estado);
 }

@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS videojuegos (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    precio DOUBLE NOT NULL,
+    categoria_id BIGINT NOT NULL,
+    estado VARCHAR(20) NOT NULL
+);
