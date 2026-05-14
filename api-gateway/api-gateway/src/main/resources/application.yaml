@@ -1,60 +1,59 @@
 spring:
   application:
     name: api-gateway
+
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            - id: ms-usuario
-              uri: lb://ms-usuario
-              predicates:
-                - Path=/api/usuarios/**
+      routes:
+        - id: ms-usuario
+          uri: lb://ms-usuario
+          predicates:
+            - Path=/api/usuarios/**
 
-            - id: ms-rol
-              uri: lb://ms-rol
-              predicates:
-                - Path=/api/roles/**
+        - id: ms-roles
+          uri: lb://ms-roles
+          predicates:
+            - Path=/api/roles/**
 
-            - id: ms-autorizacion
-              uri: lb://ms-autorizacion
-              predicates:
-                - Path=/api/autorizacion/**
+        - id: ms-autorizacion
+          uri: lb://ms-autorizacion
+          predicates:
+            - Path=/api/autorizacion/**
 
-            - id: ms-videojuego
-              uri: lb://ms-videojuego
-              predicates:
-                - Path=/api/videojuegos/**
+        - id: ms-videojuego
+          uri: lb://ms-videojuego
+          predicates:
+            - Path=/api/videojuegos/**
 
-            - id: ms-categoria
-              uri: lb://ms-categoria
-              predicates:
-                - Path=/api/categorias/**
+        - id: ms-categoria
+          uri: lb://ms-categoria
+          predicates:
+            - Path=/api/categorias/**
 
-            - id: ms-stock
-              uri: lb://ms-stock
-              predicates:
-                - Path=/api/stock/**
+        - id: ms-stock
+          uri: lb://ms-stock
+          predicates:
+            - Path=/api/stock/**
 
-            - id: ms-prestamo
-              uri: lb://ms-prestamo
-              predicates:
-                - Path=/api/prestamos/**
+        - id: ms-prestamo
+          uri: lb://ms-prestamo
+          predicates:
+            - Path=/api/prestamos/**
 
-            - id: ms-reserva
-              uri: lb://ms-reserva
-              predicates:
-                - Path=/api/reservas/**
+        - id: ms-reserva
+          uri: lb://ms-reserva
+          predicates:
+            - Path=/api/reservas/**
 
-            - id: ms-multa
-              uri: lb://ms-multa
-              predicates:
-                - Path=/api/multas/**
+        - id: ms-multa
+          uri: lb://ms-multa
+          predicates:
+            - Path=/api/multas/**
 
-            - id: ms-notificacion
-              uri: lb://ms-notificacion
-              predicates:
-                - Path=/api/notificaciones/**
+        - id: ms-notificacion
+          uri: lb://ms-notificacion
+          predicates:
+            - Path=/api/notificaciones/**
 
 server:
   port: 8080
@@ -62,4 +61,4 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/ 
