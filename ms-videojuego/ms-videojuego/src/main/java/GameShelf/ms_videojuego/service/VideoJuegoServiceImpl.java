@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import GameShelf.ms_videojuego.client.CategoriaClient;
+import GameShelf.ms_videojuego.dto.CategoriaResponseDTO;
 import GameShelf.ms_videojuego.dto.VideoJuegoRequestDTO;
 import GameShelf.ms_videojuego.dto.VideoJuegoResponseDTO;
 import GameShelf.ms_videojuego.model.VideoJuegoModel;
@@ -16,9 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 public class VideoJuegoServiceImpl implements VideoJuegoService {
 
     private final VideoJuegoRepository videoJuegoRepository;
+    private final CategoriaClient categoriaClient;
 
-    public VideoJuegoServiceImpl(VideoJuegoRepository videoJuegoRepository) {
+    public VideoJuegoServiceImpl(VideoJuegoRepository videoJuegoRepository, CategoriaClient categoriaClient) {
         this.videoJuegoRepository = videoJuegoRepository;
+        this.categoriaClient = categoriaClient;
     }
 
     @Override
@@ -34,7 +38,7 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         videoJuego.setTitulo(videoJuegoRequestDTO.getTitulo());
         videoJuego.setDescripcion(videoJuegoRequestDTO.getDescripcion());
         videoJuego.setPrecio(videoJuegoRequestDTO.getPrecio());
-        videoJuego.setCategoriaId(videoJuegoRequestDTO.getCategoriaId());
+        videoJuego.setCategoriaId(validarCategoria(videoJuegoRequestDTO.getCategoriaId()));
 
         if (videoJuegoRequestDTO.getEstado() == null || videoJuegoRequestDTO.getEstado().isEmpty()) {
             videoJuego.setEstado("DISPONIBLE");
@@ -86,7 +90,7 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         videoJuego.setTitulo(videoJuegoRequestDTO.getTitulo());
         videoJuego.setDescripcion(videoJuegoRequestDTO.getDescripcion());
         videoJuego.setPrecio(videoJuegoRequestDTO.getPrecio());
-        videoJuego.setCategoriaId(videoJuegoRequestDTO.getCategoriaId());
+        videoJuego.setCategoriaId(validarCategoria(videoJuegoRequestDTO.getCategoriaId()));
 
         if (videoJuegoRequestDTO.getEstado() != null && !videoJuegoRequestDTO.getEstado().isEmpty()) {
             videoJuego.setEstado(videoJuegoRequestDTO.getEstado());
@@ -155,6 +159,21 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         }
 
         return respuesta;
+    }
+
+    private Long validarCategoria(Long categoriaId) {
+
+        if (categoriaId == null) {
+        throw new RuntimeException("La categoría es obligatoria");
+        }
+
+        CategoriaResponseDTO categoria = categoriaClient.buscarCategoriaPorId(categoriaId);
+
+        if (!categoria.getEstado().equalsIgnoreCase("ACTIVA")) {
+            throw new RuntimeException("La categoría no está activa");
+        }
+
+        return categoria.getId();
     }
 
     private VideoJuegoResponseDTO convertirAResponseDTO(VideoJuegoModel videoJuego) {

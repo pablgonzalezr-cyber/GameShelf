@@ -11,20 +11,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "categorias")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "categorias")
-
 public class CategoriaModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 80)
     private String nombre;
 
+    @Column(nullable = false, length = 200)
     private String descripcion;
 
-    
+    @Column(nullable = false, length = 20)
+    private String estado;
 }

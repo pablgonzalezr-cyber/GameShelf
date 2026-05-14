@@ -2,36 +2,24 @@ package GameShelf.ms_categoria.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import GameShelf.ms_categoria.dto.CategoriaRequestDTO;
+import GameShelf.ms_categoria.dto.CategoriaResponseDTO;
 
-import GameShelf.ms_categoria.model.CategoriaModel;
-import GameShelf.ms_categoria.repository.CategoriaRepository;
+public interface CategoriaService {
 
-@Service
-public class CategoriaService {
+    CategoriaResponseDTO crearCategoria(CategoriaRequestDTO categoriaRequestDTO);
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    List<CategoriaResponseDTO> listarCategorias();
 
-    public CategoriaModel crearCategoria(CategoriaModel categoria) {
-        if (categoriaRepository.existsByNombre(categoria.getNombre())) {
-            throw new RuntimeException("La categoría '" + categoria.getNombre() + "' ya existe.");
-        }
-        return categoriaRepository.save(categoria);
-    }
+    CategoriaResponseDTO buscarPorId(Long id);
 
-    public List<CategoriaModel> listarTodas() {
-        return categoriaRepository.findAll();
-    }
+    CategoriaResponseDTO buscarPorNombreExacto(String nombre);
 
-    public CategoriaModel buscarPorId(Long id) {
-        return categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada."));
-    }
+    CategoriaResponseDTO actualizarCategoria(Long id, CategoriaRequestDTO categoriaRequestDTO);
 
-    public void eliminarCategoria(Long id) {
-        CategoriaModel categoria = buscarPorId(id);
-        categoriaRepository.delete(categoria);
-    }
+    void eliminarCategoria(Long id);
+
+    List<CategoriaResponseDTO> buscarPorEstado(String estado);
+
+    List<CategoriaResponseDTO> buscarPorNombre(String nombre);
 }
