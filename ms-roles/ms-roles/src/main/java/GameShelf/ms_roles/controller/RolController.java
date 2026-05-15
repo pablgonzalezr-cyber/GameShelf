@@ -1,23 +1,18 @@
 package GameShelf.ms_roles.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import GameShelf.ms_roles.service.RolService;
+import GameShelf.ms_roles.dto.RolRequestDTO;
+import GameShelf.ms_roles.dto.RolResponseDTO;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import GameShelf.ms_roles.dto.RolRequestDTO;
-import GameShelf.ms_roles.dto.RolResponseDTO;
-import GameShelf.ms_roles.service.RolService;
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -33,7 +28,7 @@ public class RolController {
     @PostMapping
     public ResponseEntity<RolResponseDTO> crearRol(@Valid @RequestBody RolRequestDTO rolRequestDTO) {
 
-        log.info("Petición POST para crear rol");
+        log.info("Petición POST para crear rol: {}", rolRequestDTO.getNombre());
 
         RolResponseDTO rolCreado = rolService.crearRol(rolRequestDTO);
 
@@ -49,7 +44,7 @@ public class RolController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RolResponseDTO> buscarRol(@PathVariable Long id) {
+    public ResponseEntity<RolResponseDTO> buscarPorId(@PathVariable Long id) {
 
         log.info("Petición GET para buscar rol ID: {}", id);
 
@@ -63,17 +58,22 @@ public class RolController {
 
         log.info("Petición PUT para actualizar rol ID: {}", id);
 
-        return ResponseEntity.ok(rolService.actualizarRol(id, rolRequestDTO));
+        RolResponseDTO rolActualizado = rolService.actualizarRol(id, rolRequestDTO);
+
+        return ResponseEntity.ok(rolActualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarRol(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> eliminarRol(@PathVariable Long id) {
 
         log.info("Petición DELETE para eliminar rol ID: {}", id);
 
         rolService.eliminarRol(id);
 
-        return ResponseEntity.ok("Rol eliminado correctamente");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Rol eliminado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/estado/{estado}")
@@ -99,5 +99,4 @@ public class RolController {
 
         return ResponseEntity.ok(rolService.buscarPorNombreExacto(nombre));
     }
-
 }
