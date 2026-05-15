@@ -14,3 +14,4 @@ public class CategoriaResponseDTO {
     private String descripcion;
     private String estado;
 }
+

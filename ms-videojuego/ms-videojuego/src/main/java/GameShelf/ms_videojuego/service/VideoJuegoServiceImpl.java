@@ -3,15 +3,19 @@ package GameShelf.ms_videojuego.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import GameShelf.ms_videojuego.client.CategoriaClient;
 import GameShelf.ms_videojuego.dto.CategoriaResponseDTO;
 import GameShelf.ms_videojuego.dto.VideoJuegoRequestDTO;
 import GameShelf.ms_videojuego.dto.VideoJuegoResponseDTO;
+import GameShelf.ms_videojuego.exception.ComunicacionCategoriaException;
+import GameShelf.ms_videojuego.exception.DatoDuplicadoException;
+import GameShelf.ms_videojuego.exception.VideoJuegoNoEncontradoException;
 import GameShelf.ms_videojuego.model.VideoJuegoModel;
 import GameShelf.ms_videojuego.repository.VideoJuegoRepository;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -30,27 +34,30 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
 
         log.info("Creando videojuego: {}", videoJuegoRequestDTO.getTitulo());
 
-        if (videoJuegoRepository.existsByTitulo(videoJuegoRequestDTO.getTitulo())) {
-            throw new RuntimeException("El videojuego ya existe");
+        String titulo = videoJuegoRequestDTO.getTitulo().trim();
+        String plataforma = validarPlataforma(videoJuegoRequestDTO.getPlataforma());
+
+        if (videoJuegoRepository.existsByTituloIgnoreCaseAndPlataformaIgnoreCase(titulo, plataforma)) {
+            log.warn("Intento de crear videojuego duplicado: {} - {}", titulo, plataforma);
+            throw new DatoDuplicadoException("El videojuego ya existe para esa plataforma");
         }
 
-        VideoJuegoModel videoJuego = new VideoJuegoModel();
-        videoJuego.setTitulo(videoJuegoRequestDTO.getTitulo());
-        videoJuego.setDescripcion(videoJuegoRequestDTO.getDescripcion());
-        videoJuego.setPrecio(videoJuegoRequestDTO.getPrecio());
-        videoJuego.setCategoriaId(validarCategoria(videoJuegoRequestDTO.getCategoriaId()));
+        CategoriaResponseDTO categoria = validarCategoria(videoJuegoRequestDTO.getCategoriaId());
 
-        if (videoJuegoRequestDTO.getEstado() == null || videoJuegoRequestDTO.getEstado().isEmpty()) {
-            videoJuego.setEstado("DISPONIBLE");
-        } else {
-            videoJuego.setEstado(videoJuegoRequestDTO.getEstado());
-        }
+        VideoJuegoModel videojuego = new VideoJuegoModel();
+        videojuego.setTitulo(titulo);
+        videojuego.setDescripcion(videoJuegoRequestDTO.getDescripcion());
+        videojuego.setPrecio(videoJuegoRequestDTO.getPrecio());
+        videojuego.setCategoriaId(categoria.getId());
+        videojuego.setNombreCategoria(categoria.getNombre());
+        videojuego.setPlataforma(plataforma);
+        videojuego.setEstado(validarEstado(videoJuegoRequestDTO.getEstado()));
 
-        VideoJuegoModel videoJuegoGuardado = videoJuegoRepository.save(videoJuego);
+        VideoJuegoModel videojuegoGuardado = videoJuegoRepository.save(videojuego);
 
-        log.info("Videojuego creado con ID: {}", videoJuegoGuardado.getId());
+        log.info("Videojuego creado correctamente con ID: {}", videojuegoGuardado.getId());
 
-        return convertirAResponseDTO(videoJuegoGuardado);
+        return convertirAResponseDTO(videojuegoGuardado);
     }
 
     @Override
@@ -61,9 +68,11 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         List<VideoJuegoModel> videojuegos = videoJuegoRepository.findAll();
         List<VideoJuegoResponseDTO> respuesta = new ArrayList<>();
 
-        for (VideoJuegoModel videoJuego : videojuegos) {
-            respuesta.add(convertirAResponseDTO(videoJuego));
+        for (VideoJuegoModel videojuego : videojuegos) {
+            respuesta.add(convertirAResponseDTO(videojuego));
         }
+
+        log.info("Total de videojuegos encontrados: {}", respuesta.size());
 
         return respuesta;
     }
@@ -73,10 +82,10 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
 
         log.info("Buscando videojuego con ID: {}", id);
 
-        VideoJuegoModel videoJuego = videoJuegoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Videojuego no encontrado"));
+        VideoJuegoModel videojuego = videoJuegoRepository.findById(id)
+                .orElseThrow(() -> new VideoJuegoNoEncontradoException("Videojuego no encontrado con ID: " + id));
 
-        return convertirAResponseDTO(videoJuego);
+        return convertirAResponseDTO(videojuego);
     }
 
     @Override
@@ -84,23 +93,32 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
 
         log.info("Actualizando videojuego con ID: {}", id);
 
-        VideoJuegoModel videoJuego = videoJuegoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Videojuego no encontrado"));
+        VideoJuegoModel videojuego = videoJuegoRepository.findById(id)
+                .orElseThrow(() -> new VideoJuegoNoEncontradoException("Videojuego no encontrado con ID: " + id));
 
-        videoJuego.setTitulo(videoJuegoRequestDTO.getTitulo());
-        videoJuego.setDescripcion(videoJuegoRequestDTO.getDescripcion());
-        videoJuego.setPrecio(videoJuegoRequestDTO.getPrecio());
-        videoJuego.setCategoriaId(validarCategoria(videoJuegoRequestDTO.getCategoriaId()));
+        String titulo = videoJuegoRequestDTO.getTitulo().trim();
+        String plataforma = validarPlataforma(videoJuegoRequestDTO.getPlataforma());
 
-        if (videoJuegoRequestDTO.getEstado() != null && !videoJuegoRequestDTO.getEstado().isEmpty()) {
-            videoJuego.setEstado(videoJuegoRequestDTO.getEstado());
+        if (videoJuegoRepository.existsByTituloIgnoreCaseAndPlataformaIgnoreCaseAndIdNot(titulo, plataforma, id)) {
+            log.warn("Intento de actualizar con videojuego duplicado: {} - {}", titulo, plataforma);
+            throw new DatoDuplicadoException("El videojuego ya existe para esa plataforma");
         }
 
-        VideoJuegoModel videoJuegoActualizado = videoJuegoRepository.save(videoJuego);
+        CategoriaResponseDTO categoria = validarCategoria(videoJuegoRequestDTO.getCategoriaId());
 
-        log.info("Videojuego actualizado con ID: {}", videoJuegoActualizado.getId());
+        videojuego.setTitulo(titulo);
+        videojuego.setDescripcion(videoJuegoRequestDTO.getDescripcion());
+        videojuego.setPrecio(videoJuegoRequestDTO.getPrecio());
+        videojuego.setCategoriaId(categoria.getId());
+        videojuego.setNombreCategoria(categoria.getNombre());
+        videojuego.setPlataforma(plataforma);
+        videojuego.setEstado(validarEstado(videoJuegoRequestDTO.getEstado()));
 
-        return convertirAResponseDTO(videoJuegoActualizado);
+        VideoJuegoModel videojuegoActualizado = videoJuegoRepository.save(videojuego);
+
+        log.info("Videojuego actualizado correctamente con ID: {}", videojuegoActualizado.getId());
+
+        return convertirAResponseDTO(videojuegoActualizado);
     }
 
     @Override
@@ -108,25 +126,27 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
 
         log.info("Eliminando videojuego con ID: {}", id);
 
-        VideoJuegoModel videoJuego = videoJuegoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Videojuego no encontrado"));
+        VideoJuegoModel videojuego = videoJuegoRepository.findById(id)
+                .orElseThrow(() -> new VideoJuegoNoEncontradoException("Videojuego no encontrado con ID: " + id));
 
-        videoJuegoRepository.delete(videoJuego);
+        videoJuegoRepository.delete(videojuego);
 
-        log.info("Videojuego eliminado con ID: {}", id);
+        log.info("Videojuego eliminado correctamente con ID: {}", id);
     }
 
     @Override
-    public List<VideoJuegoResponseDTO> listarPorCategoria(Long categoriaId) {
+    public List<VideoJuegoResponseDTO> buscarPorCategoria(Long categoriaId) {
 
-        log.info("Listando videojuegos por categoría ID: {}", categoriaId);
+        log.info("Buscando videojuegos por categoría ID: {}", categoriaId);
 
         List<VideoJuegoModel> videojuegos = videoJuegoRepository.findByCategoriaId(categoriaId);
         List<VideoJuegoResponseDTO> respuesta = new ArrayList<>();
 
-        for (VideoJuegoModel videoJuego : videojuegos) {
-            respuesta.add(convertirAResponseDTO(videoJuego));
+        for (VideoJuegoModel videojuego : videojuegos) {
+            respuesta.add(convertirAResponseDTO(videojuego));
         }
+
+        log.info("Videojuegos encontrados para categoría {}: {}", categoriaId, respuesta.size());
 
         return respuesta;
     }
@@ -139,51 +159,115 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         List<VideoJuegoModel> videojuegos = videoJuegoRepository.findByTituloContainingIgnoreCase(titulo);
         List<VideoJuegoResponseDTO> respuesta = new ArrayList<>();
 
-        for (VideoJuegoModel videoJuego : videojuegos) {
-            respuesta.add(convertirAResponseDTO(videoJuego));
+        for (VideoJuegoModel videojuego : videojuegos) {
+            respuesta.add(convertirAResponseDTO(videojuego));
         }
+
+        log.info("Videojuegos encontrados con título {}: {}", titulo, respuesta.size());
 
         return respuesta;
     }
 
     @Override
-    public List<VideoJuegoResponseDTO> listarPorEstado(String estado) {
+    public List<VideoJuegoResponseDTO> buscarPorEstado(String estado) {
 
-        log.info("Listando videojuegos por estado: {}", estado);
+        String estadoValidado = validarEstado(estado);
 
-        List<VideoJuegoModel> videojuegos = videoJuegoRepository.findByEstado(estado);
+        log.info("Buscando videojuegos por estado: {}", estadoValidado);
+
+        List<VideoJuegoModel> videojuegos = videoJuegoRepository.findByEstado(estadoValidado);
         List<VideoJuegoResponseDTO> respuesta = new ArrayList<>();
 
-        for (VideoJuegoModel videoJuego : videojuegos) {
-            respuesta.add(convertirAResponseDTO(videoJuego));
+        for (VideoJuegoModel videojuego : videojuegos) {
+            respuesta.add(convertirAResponseDTO(videojuego));
         }
+
+        log.info("Videojuegos encontrados con estado {}: {}", estadoValidado, respuesta.size());
 
         return respuesta;
     }
 
-    private Long validarCategoria(Long categoriaId) {
+    @Override
+    public List<VideoJuegoResponseDTO> buscarPorPlataforma(String plataforma) {
 
-        if (categoriaId == null) {
-        throw new RuntimeException("La categoría es obligatoria");
+        String plataformaValidada = validarPlataforma(plataforma);
+
+        log.info("Buscando videojuegos por plataforma: {}", plataformaValidada);
+
+        List<VideoJuegoModel> videojuegos = videoJuegoRepository.findByPlataforma(plataformaValidada);
+        List<VideoJuegoResponseDTO> respuesta = new ArrayList<>();
+
+        for (VideoJuegoModel videojuego : videojuegos) {
+            respuesta.add(convertirAResponseDTO(videojuego));
         }
 
-        CategoriaResponseDTO categoria = categoriaClient.buscarCategoriaPorId(categoriaId);
+        log.info("Videojuegos encontrados con plataforma {}: {}", plataformaValidada, respuesta.size());
 
-        if (!categoria.getEstado().equalsIgnoreCase("ACTIVA")) {
-            throw new RuntimeException("La categoría no está activa");
-        }
-
-        return categoria.getId();
+        return respuesta;
     }
 
-    private VideoJuegoResponseDTO convertirAResponseDTO(VideoJuegoModel videoJuego) {
+    private CategoriaResponseDTO validarCategoria(Long categoriaId) {
+
+        try {
+            log.info("Validando categoría con ms-categoria ID: {}", categoriaId);
+
+            CategoriaResponseDTO categoria = categoriaClient.buscarCategoriaPorId(categoriaId);
+
+            if (categoria == null) {
+                throw new ComunicacionCategoriaException("El microservicio de categoría no devolvió información");
+            }
+
+            if (categoria.getEstado() != null && categoria.getEstado().equalsIgnoreCase("INACTIVA")) {
+                throw new DatoDuplicadoException("La categoría está inactiva");
+            }
+
+            log.info("Categoría validada correctamente: {}", categoria.getNombre());
+
+            return categoria;
+
+        } catch (FeignException e) {
+            log.error("No se pudo validar la categoría ID: {}", categoriaId);
+            throw new ComunicacionCategoriaException("No se pudo comunicar con ms-categoria");
+        }
+    }
+
+    private String validarEstado(String estado) {
+
+        if (estado == null || estado.isBlank()) {
+            return "DISPONIBLE";
+        }
+
+        String estadoMayuscula = estado.toUpperCase();
+
+        if (!estadoMayuscula.equals("DISPONIBLE")
+                && !estadoMayuscula.equals("NO_DISPONIBLE")
+                && !estadoMayuscula.equals("INACTIVO")) {
+            throw new DatoDuplicadoException("El estado debe ser DISPONIBLE, NO_DISPONIBLE o INACTIVO");
+        }
+
+        return estadoMayuscula;
+    }
+
+    private String validarPlataforma(String plataforma) {
+
+        if (plataforma == null || plataforma.isBlank()) {
+            throw new DatoDuplicadoException("La plataforma es obligatoria");
+        }
+
+        return plataforma.toUpperCase();
+    }
+
+    private VideoJuegoResponseDTO convertirAResponseDTO(VideoJuegoModel videojuego) {
+
         return new VideoJuegoResponseDTO(
-                videoJuego.getId(),
-                videoJuego.getTitulo(),
-                videoJuego.getDescripcion(),
-                videoJuego.getPrecio(),
-                videoJuego.getCategoriaId(),
-                videoJuego.getEstado()
+                videojuego.getId(),
+                videojuego.getTitulo(),
+                videojuego.getDescripcion(),
+                videojuego.getPrecio(),
+                videojuego.getCategoriaId(),
+                videojuego.getNombreCategoria(),
+                videojuego.getPlataforma(),
+                videojuego.getEstado()
         );
     }
 }

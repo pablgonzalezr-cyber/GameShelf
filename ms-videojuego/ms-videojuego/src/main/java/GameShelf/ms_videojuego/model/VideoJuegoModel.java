@@ -1,11 +1,6 @@
 package GameShelf.ms_videojuego.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "videojuegos")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class VideoJuegoModel {
 
     @Id
@@ -24,7 +19,7 @@ public class VideoJuegoModel {
     @Column(nullable = false, length = 100)
     private String titulo;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 250)
     private String descripcion;
 
     @Column(nullable = false)
@@ -33,6 +28,12 @@ public class VideoJuegoModel {
     @Column(nullable = false)
     private Long categoriaId;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 80)
+    private String nombreCategoria;
+
+    @Column(nullable = false, length = 40)
+    private String plataforma;
+
+    @Column(nullable = false, length = 30)
     private String estado;
 }

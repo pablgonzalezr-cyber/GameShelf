@@ -1,10 +1,10 @@
 package GameShelf.ms_videojuego.client;
 
+import GameShelf.ms_videojuego.dto.CategoriaResponseDTO;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import GameShelf.ms_videojuego.dto.CategoriaResponseDTO;
 
 @FeignClient(name = "ms-categoria")
 public interface CategoriaClient {

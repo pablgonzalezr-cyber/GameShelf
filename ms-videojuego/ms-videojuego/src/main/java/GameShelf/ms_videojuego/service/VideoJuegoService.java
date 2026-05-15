@@ -17,9 +17,11 @@ public interface VideoJuegoService {
 
     void eliminarVideoJuego(Long id);
 
-    List<VideoJuegoResponseDTO> listarPorCategoria(Long categoriaId);
+    List<VideoJuegoResponseDTO> buscarPorCategoria(Long categoriaId);
 
     List<VideoJuegoResponseDTO> buscarPorTitulo(String titulo);
 
-    List<VideoJuegoResponseDTO> listarPorEstado(String estado);
+    List<VideoJuegoResponseDTO> buscarPorEstado(String estado);
+
+    List<VideoJuegoResponseDTO> buscarPorPlataforma(String plataforma);
 }

@@ -2,13 +2,17 @@ package GameShelf.ms_videojuego.repository;
 
 import java.util.List;
 
+import GameShelf.ms_videojuego.model.VideoJuegoModel;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import GameShelf.ms_videojuego.model.VideoJuegoModel;
-
 @Repository
 public interface VideoJuegoRepository extends JpaRepository<VideoJuegoModel, Long> {
+
+    boolean existsByTituloIgnoreCaseAndPlataformaIgnoreCase(String titulo, String plataforma);
+
+    boolean existsByTituloIgnoreCaseAndPlataformaIgnoreCaseAndIdNot(String titulo, String plataforma, Long id);
 
     List<VideoJuegoModel> findByCategoriaId(Long categoriaId);
 
@@ -16,5 +20,5 @@ public interface VideoJuegoRepository extends JpaRepository<VideoJuegoModel, Lon
 
     List<VideoJuegoModel> findByEstado(String estado);
 
-    boolean existsByTitulo(String titulo);
+    List<VideoJuegoModel> findByPlataforma(String plataforma);
 }

@@ -1,23 +1,18 @@
 package GameShelf.ms_videojuego.controller;
 
+import java.util.HashMap;
 import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 import GameShelf.ms_videojuego.dto.VideoJuegoRequestDTO;
 import GameShelf.ms_videojuego.dto.VideoJuegoResponseDTO;
 import GameShelf.ms_videojuego.service.VideoJuegoService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -34,11 +29,11 @@ public class VideoJuegoController {
     public ResponseEntity<VideoJuegoResponseDTO> crearVideoJuego(
             @Valid @RequestBody VideoJuegoRequestDTO videoJuegoRequestDTO) {
 
-        log.info("Petición POST para crear videojuego");
+        log.info("Petición POST para crear videojuego: {}", videoJuegoRequestDTO.getTitulo());
 
-        VideoJuegoResponseDTO videoJuegoCreado = videoJuegoService.crearVideoJuego(videoJuegoRequestDTO);
+        VideoJuegoResponseDTO videojuegoCreado = videoJuegoService.crearVideoJuego(videoJuegoRequestDTO);
 
-        return new ResponseEntity<>(videoJuegoCreado, HttpStatus.CREATED);
+        return new ResponseEntity<>(videojuegoCreado, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -50,7 +45,7 @@ public class VideoJuegoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VideoJuegoResponseDTO> buscarVideoJuego(@PathVariable Long id) {
+    public ResponseEntity<VideoJuegoResponseDTO> buscarPorId(@PathVariable Long id) {
 
         log.info("Petición GET para buscar videojuego ID: {}", id);
 
@@ -68,21 +63,24 @@ public class VideoJuegoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarVideoJuego(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> eliminarVideoJuego(@PathVariable Long id) {
 
         log.info("Petición DELETE para eliminar videojuego ID: {}", id);
 
         videoJuegoService.eliminarVideoJuego(id);
 
-        return ResponseEntity.ok("Videojuego eliminado correctamente");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Videojuego eliminado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/categoria/{categoriaId}")
-    public ResponseEntity<List<VideoJuegoResponseDTO>> listarPorCategoria(@PathVariable Long categoriaId) {
+    public ResponseEntity<List<VideoJuegoResponseDTO>> buscarPorCategoria(@PathVariable Long categoriaId) {
 
-        log.info("Petición GET para listar videojuegos por categoría ID: {}", categoriaId);
+        log.info("Petición GET para buscar videojuegos por categoría ID: {}", categoriaId);
 
-        return ResponseEntity.ok(videoJuegoService.listarPorCategoria(categoriaId));
+        return ResponseEntity.ok(videoJuegoService.buscarPorCategoria(categoriaId));
     }
 
     @GetMapping("/buscar/{titulo}")
@@ -94,10 +92,18 @@ public class VideoJuegoController {
     }
 
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<VideoJuegoResponseDTO>> listarPorEstado(@PathVariable String estado) {
+    public ResponseEntity<List<VideoJuegoResponseDTO>> buscarPorEstado(@PathVariable String estado) {
 
-        log.info("Petición GET para listar videojuegos por estado: {}", estado);
+        log.info("Petición GET para buscar videojuegos por estado: {}", estado);
 
-        return ResponseEntity.ok(videoJuegoService.listarPorEstado(estado));
+        return ResponseEntity.ok(videoJuegoService.buscarPorEstado(estado));
+    }
+
+    @GetMapping("/plataforma/{plataforma}")
+    public ResponseEntity<List<VideoJuegoResponseDTO>> buscarPorPlataforma(@PathVariable String plataforma) {
+
+        log.info("Petición GET para buscar videojuegos por plataforma: {}", plataforma);
+
+        return ResponseEntity.ok(videoJuegoService.buscarPorPlataforma(plataforma));
     }
 }
