@@ -8,36 +8,24 @@ import org.springframework.stereotype.Repository;
 
 import GameShelf.ms_usuario.model.UsuarioModel;
 
-// Repositorio encargado de comunicarse con la base de datos de usuarios.
-// Extiende JpaRepository para usar operaciones CRUD básicas sin programarlas manualmente.
 @Repository
 public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
 
-    // Buscar por email (Fundamental para login o recuperación de contraseña)
-    Optional<UsuarioModel> findByCorreo (String correo);
+    Optional<UsuarioModel> findByCorreo(String correo);
 
-    // Buscar por nombre de usuario (Para login)
-    Optional<UsuarioModel> findByUsuario (String usuario);
+    Optional<UsuarioModel> findByUsuario(String usuario);
 
-    // 2. VALIDACIONES DE EXISTENCIA (Para el proceso de Registro/Sign Up)
-    // Estos devuelven true o false. Es más rápido que traer todo el objeto.
-    
     boolean existsByCorreo(String correo);
+
     boolean existsByUsuario(String usuario);
 
+    boolean existsByCorreoAndIdNot(String correo, Long id);
 
-    // 3. BÚSQUEDAS DE LISTAS (Para administración)
-    
-    // Buscar todos los usuarios que tienen un rol específico (ej: todos los "ADMIN")
+    boolean existsByUsuarioAndIdNot(String usuario, Long id);
+
     List<UsuarioModel> findByRol(String rol);
 
-    // Buscar usuarios cuyo nombre contenga una palabra (para buscadores con lupa)
-    List<UsuarioModel> findByUsuarioContainingIgnoreCase(String username);
+    List<UsuarioModel> findByUsuarioContainingIgnoreCase(String usuario);
 
-
-    // 4. BORRADO SEGURO
-    
-    // Borrar por email en lugar de solo por ID
     void deleteByCorreo(String correo);
-
 }

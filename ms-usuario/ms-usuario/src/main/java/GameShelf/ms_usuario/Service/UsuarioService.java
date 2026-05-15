@@ -4,6 +4,7 @@ import java.util.List;
 
 import GameShelf.ms_usuario.dto.UsuarioRequestDTO;
 import GameShelf.ms_usuario.dto.UsuarioResponseDTO;
+import GameShelf.ms_usuario.dto.UsuarioUpdateDTO;
 
 public interface UsuarioService {
 
@@ -13,7 +14,7 @@ public interface UsuarioService {
 
     UsuarioResponseDTO buscarPorId(Long id);
 
-    UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO);
+    UsuarioResponseDTO actualizarUsuario(Long id, UsuarioUpdateDTO usuarioUpdateDTO);
 
     void eliminarUsuario(Long id);
 

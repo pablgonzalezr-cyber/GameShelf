@@ -3,14 +3,20 @@ package GameShelf.ms_usuario.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import GameShelf.ms_usuario.client.RolClient;
 import GameShelf.ms_usuario.dto.RolResponseDTO;
 import GameShelf.ms_usuario.dto.UsuarioRequestDTO;
 import GameShelf.ms_usuario.dto.UsuarioResponseDTO;
+import GameShelf.ms_usuario.dto.UsuarioUpdateDTO;
+import GameShelf.ms_usuario.exception.ComunicacionRolException;
+import GameShelf.ms_usuario.exception.DatoDuplicadoException;
+import GameShelf.ms_usuario.exception.UsuarioNoEncontradoException;
 import GameShelf.ms_usuario.model.UsuarioModel;
 import GameShelf.ms_usuario.repository.UsuarioRepository;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,35 +25,38 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolClient rolClient;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolClient rolClient) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolClient rolClient, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.rolClient = rolClient;
+        this.passwordEncoder = passwordEncoder;
     }
-    
+
     @Override
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO usuarioRequestDTO) {
 
         log.info("Creando usuario: {}", usuarioRequestDTO.getUsuario());
 
         if (usuarioRepository.existsByUsuario(usuarioRequestDTO.getUsuario())) {
-            throw new RuntimeException("El nombre de usuario ya existe");
+            log.warn("Intento de crear usuario duplicado: {}", usuarioRequestDTO.getUsuario());
+            throw new DatoDuplicadoException("El nombre de usuario ya existe");
         }
 
         if (usuarioRepository.existsByCorreo(usuarioRequestDTO.getCorreo())) {
-            throw new RuntimeException("El correo ya está registrado");
+            log.warn("Intento de crear correo duplicado: {}", usuarioRequestDTO.getCorreo());
+            throw new DatoDuplicadoException("El correo ya está registrado");
         }
 
         UsuarioModel usuario = new UsuarioModel();
         usuario.setUsuario(usuarioRequestDTO.getUsuario());
-        usuario.setContrasena(usuarioRequestDTO.getContrasena());
+        usuario.setContrasena(passwordEncoder.encode(usuarioRequestDTO.getContrasena()));
         usuario.setCorreo(usuarioRequestDTO.getCorreo());
         usuario.setRol(validarRol(usuarioRequestDTO.getRol()));
-        
 
         UsuarioModel usuarioGuardado = usuarioRepository.save(usuario);
 
-        log.info("Usuario creado con ID: {}", usuarioGuardado.getId());
+        log.info("Usuario creado correctamente con ID: {}", usuarioGuardado.getId());
 
         return convertirAResponseDTO(usuarioGuardado);
     }
@@ -64,6 +73,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             respuesta.add(convertirAResponseDTO(usuario));
         }
 
+        log.info("Total de usuarios encontrados: {}", respuesta.size());
+
         return respuesta;
     }
 
@@ -73,33 +84,43 @@ public class UsuarioServiceImpl implements UsuarioService {
         log.info("Buscando usuario con ID: {}", id);
 
         UsuarioModel usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + id));
 
         return convertirAResponseDTO(usuario);
     }
 
     @Override
-    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
+    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioUpdateDTO usuarioUpdateDTO) {
 
         log.info("Actualizando usuario con ID: {}", id);
 
         UsuarioModel usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + id));
 
-        usuario.setUsuario(usuarioRequestDTO.getUsuario());
-        usuario.setCorreo(usuarioRequestDTO.getCorreo());
-
-        if (usuarioRequestDTO.getContrasena() != null && !usuarioRequestDTO.getContrasena().isEmpty()) {
-            usuario.setContrasena(usuarioRequestDTO.getContrasena());
+        if (usuarioRepository.existsByUsuarioAndIdNot(usuarioUpdateDTO.getUsuario(), id)) {
+            log.warn("Intento de actualizar con usuario duplicado: {}", usuarioUpdateDTO.getUsuario());
+            throw new DatoDuplicadoException("El nombre de usuario ya existe");
         }
 
-        if (usuarioRequestDTO.getRol() != null && !usuarioRequestDTO.getRol().isEmpty()) {
-            usuario.setRol(validarRol(usuarioRequestDTO.getRol()));
+        if (usuarioRepository.existsByCorreoAndIdNot(usuarioUpdateDTO.getCorreo(), id)) {
+            log.warn("Intento de actualizar con correo duplicado: {}", usuarioUpdateDTO.getCorreo());
+            throw new DatoDuplicadoException("El correo ya está registrado");
+        }
+
+        usuario.setUsuario(usuarioUpdateDTO.getUsuario());
+        usuario.setCorreo(usuarioUpdateDTO.getCorreo());
+
+        if (usuarioUpdateDTO.getContrasena() != null && !usuarioUpdateDTO.getContrasena().isBlank()) {
+            usuario.setContrasena(passwordEncoder.encode(usuarioUpdateDTO.getContrasena()));
+        }
+
+        if (usuarioUpdateDTO.getRol() != null && !usuarioUpdateDTO.getRol().isBlank()) {
+            usuario.setRol(validarRol(usuarioUpdateDTO.getRol()));
         }
 
         UsuarioModel usuarioActualizado = usuarioRepository.save(usuario);
 
-        log.info("Usuario actualizado con ID: {}", usuarioActualizado.getId());
+        log.info("Usuario actualizado correctamente con ID: {}", usuarioActualizado.getId());
 
         return convertirAResponseDTO(usuarioActualizado);
     }
@@ -110,11 +131,11 @@ public class UsuarioServiceImpl implements UsuarioService {
         log.info("Eliminando usuario con ID: {}", id);
 
         UsuarioModel usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + id));
 
         usuarioRepository.delete(usuario);
 
-        log.info("Usuario eliminado con ID: {}", id);
+        log.info("Usuario eliminado correctamente con ID: {}", id);
     }
 
     @Override
@@ -128,6 +149,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         for (UsuarioModel usuario : usuarios) {
             respuesta.add(convertirAResponseDTO(usuario));
         }
+
+        log.info("Usuarios encontrados con rol {}: {}", rol, respuesta.size());
 
         return respuesta;
     }
@@ -144,22 +167,38 @@ public class UsuarioServiceImpl implements UsuarioService {
             respuesta.add(convertirAResponseDTO(user));
         }
 
+        log.info("Usuarios encontrados con búsqueda {}: {}", usuario, respuesta.size());
+
         return respuesta;
     }
 
     private String validarRol(String nombreRol) {
 
-        if (nombreRol == null || nombreRol.isEmpty()) {
-        nombreRol = "CLIENTE";
+        if (nombreRol == null || nombreRol.isBlank()) {
+            nombreRol = "CLIENTE";
         }
 
-        RolResponseDTO rol = rolClient.buscarRolPorNombre(nombreRol);
+        try {
+            log.info("Validando rol con ms-roles: {}", nombreRol);
 
-        if (!rol.getEstado().equalsIgnoreCase("ACTIVO")) {
-        throw new RuntimeException("El rol no está activo");
+            RolResponseDTO rol = rolClient.buscarRolPorNombre(nombreRol);
+
+            if (rol == null) {
+                throw new ComunicacionRolException("El microservicio de roles no devolvió información");
+            }
+
+            if (rol.getEstado() == null || !rol.getEstado().equalsIgnoreCase("ACTIVO")) {
+                throw new DatoDuplicadoException("El rol no está activo");
+            }
+
+            log.info("Rol validado correctamente: {}", rol.getNombre());
+
+            return rol.getNombre();
+
+        } catch (FeignException e) {
+            log.error("No se pudo validar el rol {} con ms-roles", nombreRol);
+            throw new ComunicacionRolException("No se pudo validar el rol con ms-roles");
         }
-
-        return rol.getNombre();
     }
 
     private UsuarioResponseDTO convertirAResponseDTO(UsuarioModel usuario) {

@@ -1,21 +1,17 @@
 package GameShelf.ms_usuario.Controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import GameShelf.ms_usuario.Service.UsuarioService;
 import GameShelf.ms_usuario.dto.UsuarioRequestDTO;
 import GameShelf.ms_usuario.dto.UsuarioResponseDTO;
+import GameShelf.ms_usuario.dto.UsuarioUpdateDTO;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,21 +55,24 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(
             @PathVariable Long id,
-            @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
+            @Valid @RequestBody UsuarioUpdateDTO usuarioUpdateDTO) {
 
         log.info("Petición PUT para actualizar usuario ID: {}", id);
 
-        return ResponseEntity.ok(usuarioService.actualizarUsuario(id, usuarioRequestDTO));
+        return ResponseEntity.ok(usuarioService.actualizarUsuario(id, usuarioUpdateDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarUsuario(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> eliminarUsuario(@PathVariable Long id) {
 
         log.info("Petición DELETE para eliminar usuario ID: {}", id);
 
         usuarioService.eliminarUsuario(id);
 
-        return ResponseEntity.ok("Usuario eliminado correctamente");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Usuario eliminado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/rol/{rol}")
