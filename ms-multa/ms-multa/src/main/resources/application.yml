@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ms-multa
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_multa
+    username: root
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8087
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
