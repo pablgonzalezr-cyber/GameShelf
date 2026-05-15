@@ -78,11 +78,11 @@ public class CategoriaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarCategoria(@PathVariable Long id) {
 
-        log.info("Petición DELETE para eliminar categoría ID: {}", id);
+        log.info("Petición DELETE para desactivar categoría ID: {}", id);
 
         categoriaService.eliminarCategoria(id);
 
-        return ResponseEntity.ok("Categoría eliminada correctamente");
+        return ResponseEntity.ok("Categoría desactivada correctamente");
     }
 
     @GetMapping("/estado/{estado}")
