@@ -22,4 +22,6 @@ public interface StockService {
     StockResponseDTO aumentarStock(Long videojuegoId);
 
     List<StockResponseDTO> listarPorEstado(String estado);
+
+    void eliminarStock(Long id);
 }

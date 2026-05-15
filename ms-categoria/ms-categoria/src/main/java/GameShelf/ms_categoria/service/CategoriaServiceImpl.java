@@ -7,12 +7,15 @@ import org.springframework.stereotype.Service;
 
 import GameShelf.ms_categoria.dto.CategoriaRequestDTO;
 import GameShelf.ms_categoria.dto.CategoriaResponseDTO;
+import GameShelf.ms_categoria.exception.CategoriaNoEncontradaException;
+import GameShelf.ms_categoria.exception.DatoDuplicadoException;
+import GameShelf.ms_categoria.exception.DatoInvalidoException;
 import GameShelf.ms_categoria.model.CategoriaModel;
 import GameShelf.ms_categoria.repository.CategoriaRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
+@Service	
 public class CategoriaServiceImpl implements CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
@@ -26,23 +29,20 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         log.info("Creando categoría: {}", categoriaRequestDTO.getNombre());
 
-        if (categoriaRepository.existsByNombre(categoriaRequestDTO.getNombre())) {
-            throw new RuntimeException("La categoría ya existe");
-        }
-        
-        CategoriaModel categoria = new CategoriaModel();
-        categoria.setNombre(categoriaRequestDTO.getNombre());
-        categoria.setDescripcion(categoriaRequestDTO.getDescripcion());
+        String nombreLimpio = categoriaRequestDTO.getNombre().trim().toUpperCase();
 
-        if (categoriaRequestDTO.getEstado() == null || categoriaRequestDTO.getEstado().isEmpty()) {
-            categoria.setEstado("ACTIVA");
-        } else {
-            categoria.setEstado(categoriaRequestDTO.getEstado());
+        if (categoriaRepository.existsByNombre(nombreLimpio)) {
+            throw new DatoDuplicadoException("La categoría ya existe");
         }
+
+        CategoriaModel categoria = new CategoriaModel();
+        categoria.setNombre(nombreLimpio);
+        categoria.setDescripcion(categoriaRequestDTO.getDescripcion().trim());
+        categoria.setEstado(validarEstado(categoriaRequestDTO.getEstado()));
 
         CategoriaModel categoriaGuardada = categoriaRepository.save(categoria);
 
-        log.info("Categoría creada con ID: {}", categoriaGuardada.getId());
+        log.info("Categoría creada correctamente con ID: {}", categoriaGuardada.getId());
 
         return convertirAResponseDTO(categoriaGuardada);
     }
@@ -65,10 +65,10 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public CategoriaResponseDTO buscarPorId(Long id) {
 
-        log.info("Buscando categoría con ID: {}", id);
+        log.info("Buscando categoría por ID: {}", id);
 
         CategoriaModel categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new CategoriaNoEncontradaException("Categoría no encontrada"));
 
         return convertirAResponseDTO(categoria);
     }
@@ -78,8 +78,10 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         log.info("Buscando categoría exacta por nombre: {}", nombre);
 
-        CategoriaModel categoria = categoriaRepository.findByNombre(nombre)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        String nombreLimpio = nombre.trim().toUpperCase();
+
+        CategoriaModel categoria = categoriaRepository.findByNombre(nombreLimpio)
+                .orElseThrow(() -> new CategoriaNoEncontradaException("Categoría no encontrada"));
 
         return convertirAResponseDTO(categoria);
     }
@@ -90,18 +92,21 @@ public class CategoriaServiceImpl implements CategoriaService {
         log.info("Actualizando categoría con ID: {}", id);
 
         CategoriaModel categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new CategoriaNoEncontradaException("Categoría no encontrada"));
 
-        categoria.setNombre(categoriaRequestDTO.getNombre());
-        categoria.setDescripcion(categoriaRequestDTO.getDescripcion());
+        String nombreLimpio = categoriaRequestDTO.getNombre().trim().toUpperCase();
 
-        if (categoriaRequestDTO.getEstado() != null && !categoriaRequestDTO.getEstado().isEmpty()) {
-            categoria.setEstado(categoriaRequestDTO.getEstado());
+        if (!categoria.getNombre().equals(nombreLimpio) && categoriaRepository.existsByNombre(nombreLimpio)) {
+            throw new DatoDuplicadoException("Ya existe otra categoría con ese nombre");
         }
+
+        categoria.setNombre(nombreLimpio);
+        categoria.setDescripcion(categoriaRequestDTO.getDescripcion().trim());
+        categoria.setEstado(validarEstado(categoriaRequestDTO.getEstado()));
 
         CategoriaModel categoriaActualizada = categoriaRepository.save(categoria);
 
-        log.info("Categoría actualizada con ID: {}", categoriaActualizada.getId());
+        log.info("Categoría actualizada correctamente con ID: {}", categoriaActualizada.getId());
 
         return convertirAResponseDTO(categoriaActualizada);
     }
@@ -109,14 +114,16 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public void eliminarCategoria(Long id) {
 
-        log.info("Eliminando categoría con ID: {}", id);
+        log.info("Desactivando categoría con ID: {}", id);
 
         CategoriaModel categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new CategoriaNoEncontradaException("Categoría no encontrada"));
 
-        categoriaRepository.delete(categoria);
+        categoria.setEstado("INACTIVO");
 
-        log.info("Categoría eliminada con ID: {}", id);
+        categoriaRepository.save(categoria);
+
+        log.info("Categoría desactivada correctamente con ID: {}", id);
     }
 
     @Override
@@ -124,7 +131,9 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         log.info("Buscando categorías por estado: {}", estado);
 
-        List<CategoriaModel> categorias = categoriaRepository.findByEstado(estado);
+        String estadoLimpio = validarEstado(estado);
+
+        List<CategoriaModel> categorias = categoriaRepository.findByEstado(estadoLimpio);
         List<CategoriaResponseDTO> respuesta = new ArrayList<>();
 
         for (CategoriaModel categoria : categorias) {
@@ -137,7 +146,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public List<CategoriaResponseDTO> buscarPorNombre(String nombre) {
 
-        log.info("Buscando categorías por nombre: {}", nombre);
+        log.info("Buscando categorías que contengan el nombre: {}", nombre);
 
         List<CategoriaModel> categorias = categoriaRepository.findByNombreContainingIgnoreCase(nombre);
         List<CategoriaResponseDTO> respuesta = new ArrayList<>();
@@ -149,12 +158,27 @@ public class CategoriaServiceImpl implements CategoriaService {
         return respuesta;
     }
 
+    private String validarEstado(String estado) {
+
+        if (estado == null || estado.trim().isEmpty()) {
+            return "ACTIVO";
+        }
+
+        String estadoLimpio = estado.trim().toUpperCase();
+
+        if (!estadoLimpio.equals("ACTIVO") && !estadoLimpio.equals("INACTIVO")) {
+            throw new DatoInvalidoException("El estado debe ser ACTIVO o INACTIVO");
+        }
+
+        return estadoLimpio;
+    }
+
     private CategoriaResponseDTO convertirAResponseDTO(CategoriaModel categoria) {
+
         return new CategoriaResponseDTO(
                 categoria.getId(),
                 categoria.getNombre(),
                 categoria.getDescripcion(),
-                categoria.getEstado()
-        );
+                categoria.getEstado());
     }
 }
