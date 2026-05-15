@@ -1,0 +1,8 @@
+package GameShelf.ms_categoria.exception;
+
+public class CategoriaNoEncontradaException extends RuntimeException {
+
+    public CategoriaNoEncontradaException(String mensaje) {
+        super(mensaje);
+    }
+}

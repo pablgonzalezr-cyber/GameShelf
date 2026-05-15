@@ -1,5 +1,6 @@
 package GameShelf.ms_categoria.exception;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,21 +16,57 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> manejarRuntimeException(RuntimeException ex) {
+    @ExceptionHandler(CategoriaNoEncontradaException.class)
+    public ResponseEntity<Map<String, Object>> manejarCategoriaNoEncontrada(CategoriaNoEncontradaException ex) {
 
-        log.error("Error de negocio: {}", ex.getMessage());
+        log.error("Categoría no encontrada: {}", ex.getMessage());
 
-        Map<String, String> respuesta = new HashMap<>();
-        respuesta.put("error", ex.getMessage());
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("fecha", LocalDateTime.now());
+        respuesta.put("estado", 404);
+        respuesta.put("error", "Categoría no encontrada");
+        respuesta.put("mensaje", ex.getMessage());
 
-        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
+    }
+
+    @ExceptionHandler(DatoDuplicadoException.class)
+    public ResponseEntity<Map<String, Object>> manejarDatoDuplicado(DatoDuplicadoException ex) {
+
+        log.error("Dato duplicado: {}", ex.getMessage());
+
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("fecha", LocalDateTime.now());
+        respuesta.put("estado", 400);
+        respuesta.put("error", "Dato duplicado");
+        respuesta.put("mensaje", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+    }
+
+    @ExceptionHandler(DatoInvalidoException.class)
+    public ResponseEntity<Map<String, Object>> manejarDatoInvalido(DatoInvalidoException ex) {
+
+        log.error("Dato inválido: {}", ex.getMessage());
+
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("fecha", LocalDateTime.now());
+        respuesta.put("estado", 400);
+        respuesta.put("error", "Dato inválido");
+        respuesta.put("mensaje", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> manejarValidaciones(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, Object>> manejarValidaciones(MethodArgumentNotValidException ex) {
 
-        log.error("Error de validación");
+        log.error("Error de validación en DTO");
+
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("fecha", LocalDateTime.now());
+        respuesta.put("estado", 400);
+        respuesta.put("error", "Error de validación");
 
         Map<String, String> errores = new HashMap<>();
 
@@ -37,6 +74,22 @@ public class GlobalExceptionHandler {
             errores.put(error.getField(), error.getDefaultMessage());
         });
 
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        respuesta.put("mensajes", errores);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> manejarErrorGeneral(Exception ex) {
+
+        log.error("Error interno: {}", ex.getMessage());
+
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("fecha", LocalDateTime.now());
+        respuesta.put("estado", 500);
+        respuesta.put("error", "Error interno del servidor");
+        respuesta.put("mensaje", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
     }
 }
