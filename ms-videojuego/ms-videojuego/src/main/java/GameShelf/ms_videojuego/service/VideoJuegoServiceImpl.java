@@ -226,7 +226,11 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
                     categoria.getDescripcion(),
                     categoria.getEstado());
 
-            if (categoria.getEstado() == null || !categoria.getEstado().trim().equalsIgnoreCase("ACTIVO")) {
+            String estadoCategoria = categoria.getEstado();
+
+            log.info("ESTADO CATEGORIA RECIBIDO RAW: [{}]", estadoCategoria);
+
+            if (estadoCategoria == null || !estadoCategoria.trim().equalsIgnoreCase("ACTIVO")) {
                 throw new DatoDuplicadoException("La categoría no está activa");
             }
 
