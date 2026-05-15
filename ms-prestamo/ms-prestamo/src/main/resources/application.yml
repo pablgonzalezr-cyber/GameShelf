@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ms-prestamo
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_prestamo
+    username: root
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8086
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
