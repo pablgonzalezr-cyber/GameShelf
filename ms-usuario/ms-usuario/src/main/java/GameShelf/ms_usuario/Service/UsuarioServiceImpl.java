@@ -175,7 +175,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private String validarRol(String nombreRol) {
 
         if (nombreRol == null || nombreRol.isBlank()) {
-            nombreRol = "CLIENTE";
+        nombreRol = "CLIENTE";
         }
 
         try {
@@ -184,19 +184,23 @@ public class UsuarioServiceImpl implements UsuarioService {
             RolResponseDTO rol = rolClient.buscarRolPorNombre(nombreRol);
 
             if (rol == null) {
-                throw new ComunicacionRolException("El microservicio de roles no devolvió información");
+            throw new ComunicacionRolException("El microservicio de roles no devolvió información");
             }
 
             if (rol.getEstado() == null || !rol.getEstado().equalsIgnoreCase("ACTIVO")) {
-                throw new DatoDuplicadoException("El rol no está activo");
+            throw new DatoDuplicadoException("El rol no está activo");
             }
 
             log.info("Rol validado correctamente: {}", rol.getNombre());
 
             return rol.getNombre();
 
+        } catch (FeignException.NotFound e) {
+            log.warn("Rol no encontrado en ms-roles: {}", nombreRol);
+            throw new DatoDuplicadoException("El rol ingresado no existe");
+
         } catch (FeignException e) {
-            log.error("No se pudo validar el rol {} con ms-roles", nombreRol);
+            log.error("Error de comunicación con ms-roles al validar rol: {}", nombreRol);
             throw new ComunicacionRolException("No se pudo validar el rol con ms-roles");
         }
     }

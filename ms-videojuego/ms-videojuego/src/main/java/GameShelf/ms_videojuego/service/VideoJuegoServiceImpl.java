@@ -3,6 +3,8 @@ package GameShelf.ms_videojuego.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import GameShelf.ms_videojuego.client.CategoriaClient;
 import GameShelf.ms_videojuego.dto.CategoriaResponseDTO;
 import GameShelf.ms_videojuego.dto.VideoJuegoRequestDTO;
@@ -14,8 +16,6 @@ import GameShelf.ms_videojuego.model.VideoJuegoModel;
 import GameShelf.ms_videojuego.repository.VideoJuegoRepository;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -121,17 +121,20 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         return convertirAResponseDTO(videojuegoActualizado);
     }
 
+    
     @Override
     public void eliminarVideoJuego(Long id) {
 
-        log.info("Eliminando videojuego con ID: {}", id);
+        log.info("Desactivando videojuego con ID: {}", id);
 
         VideoJuegoModel videojuego = videoJuegoRepository.findById(id)
                 .orElseThrow(() -> new VideoJuegoNoEncontradoException("Videojuego no encontrado con ID: " + id));
 
-        videoJuegoRepository.delete(videojuego);
+        videojuego.setEstado("INACTIVO");
 
-        log.info("Videojuego eliminado correctamente con ID: {}", id);
+        videoJuegoRepository.save(videojuego);
+
+        log.info("Videojuego desactivado correctamente con ID: {}", id);
     }
 
     @Override
@@ -206,7 +209,7 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
         return respuesta;
     }
 
-    private CategoriaResponseDTO validarCategoria(Long categoriaId) {
+   private CategoriaResponseDTO validarCategoria(Long categoriaId) {
 
         try {
             log.info("Validando categoría con ms-categoria ID: {}", categoriaId);
@@ -217,16 +220,26 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
                 throw new ComunicacionCategoriaException("El microservicio de categoría no devolvió información");
             }
 
-            if (categoria.getEstado() != null && categoria.getEstado().equalsIgnoreCase("INACTIVA")) {
-                throw new DatoDuplicadoException("La categoría está inactiva");
+            log.info("CATEGORIA RECIBIDA -> id: {}, nombre: {}, descripcion: {}, estado: {}",
+                    categoria.getId(),
+                    categoria.getNombre(),
+                    categoria.getDescripcion(),
+                    categoria.getEstado());
+
+            if (categoria.getEstado() == null || !categoria.getEstado().trim().equalsIgnoreCase("ACTIVO")) {
+                throw new DatoDuplicadoException("La categoría no está activa");
             }
 
             log.info("Categoría validada correctamente: {}", categoria.getNombre());
 
             return categoria;
 
+        } catch (FeignException.NotFound e) {
+            log.warn("Categoría no encontrada en ms-categoria ID: {}", categoriaId);
+            throw new DatoDuplicadoException("La categoría ingresada no existe");
+
         } catch (FeignException e) {
-            log.error("No se pudo validar la categoría ID: {}", categoriaId);
+            log.error("No se pudo comunicar con ms-categoria para validar categoría ID: {}", categoriaId);
             throw new ComunicacionCategoriaException("No se pudo comunicar con ms-categoria");
         }
     }
@@ -237,7 +250,7 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
             return "DISPONIBLE";
         }
 
-        String estadoMayuscula = estado.toUpperCase();
+        String estadoMayuscula = estado.trim().toUpperCase();
 
         if (!estadoMayuscula.equals("DISPONIBLE")
                 && !estadoMayuscula.equals("NO_DISPONIBLE")
@@ -254,7 +267,7 @@ public class VideoJuegoServiceImpl implements VideoJuegoService {
             throw new DatoDuplicadoException("La plataforma es obligatoria");
         }
 
-        return plataforma.toUpperCase();
+        return plataforma.trim().toUpperCase();
     }
 
     private VideoJuegoResponseDTO convertirAResponseDTO(VideoJuegoModel videojuego) {

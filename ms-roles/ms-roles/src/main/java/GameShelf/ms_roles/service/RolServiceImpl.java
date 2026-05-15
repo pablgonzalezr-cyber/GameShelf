@@ -3,6 +3,8 @@ package GameShelf.ms_roles.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import GameShelf.ms_roles.dto.RolRequestDTO;
 import GameShelf.ms_roles.dto.RolResponseDTO;
 import GameShelf.ms_roles.exception.DatoDuplicadoException;
@@ -10,8 +12,6 @@ import GameShelf.ms_roles.exception.RolNoEncontradoException;
 import GameShelf.ms_roles.model.Rol;
 import GameShelf.ms_roles.repository.RolRepository;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -28,7 +28,7 @@ public class RolServiceImpl implements RolService {
 
         log.info("Creando rol: {}", rolRequestDTO.getNombre());
 
-        String nombreRol = rolRequestDTO.getNombre().toUpperCase();
+        String nombreRol = rolRequestDTO.getNombre().trim().toUpperCase();
 
         if (rolRepository.existsByNombre(nombreRol)) {
             log.warn("Intento de crear rol duplicado: {}", nombreRol);
@@ -83,7 +83,7 @@ public class RolServiceImpl implements RolService {
         Rol rol = rolRepository.findById(id)
                 .orElseThrow(() -> new RolNoEncontradoException("Rol no encontrado con ID: " + id));
 
-        String nombreRol = rolRequestDTO.getNombre().toUpperCase();
+        String nombreRol = rolRequestDTO.getNombre().trim().toUpperCase();
 
         if (rolRepository.existsByNombreAndIdNot(nombreRol, id)) {
             log.warn("Intento de actualizar con nombre de rol duplicado: {}", nombreRol);
@@ -104,14 +104,16 @@ public class RolServiceImpl implements RolService {
     @Override
     public void eliminarRol(Long id) {
 
-        log.info("Eliminando rol con ID: {}", id);
+        log.info("Desactivando rol con ID: {}", id);
 
-        Rol rol = rolRepository.findById(id)
-                .orElseThrow(() -> new RolNoEncontradoException("Rol no encontrado con ID: " + id));
+         Rol rol = rolRepository.findById(id)
+            .orElseThrow(() -> new RolNoEncontradoException("Rol no encontrado con ID: " + id));
 
-        rolRepository.delete(rol);
+        rol.setEstado("INACTIVO");
 
-        log.info("Rol eliminado correctamente con ID: {}", id);
+        rolRepository.save(rol);
+
+        log.info("Rol desactivado correctamente con ID: {}", id);
     }
 
     @Override
@@ -153,7 +155,7 @@ public class RolServiceImpl implements RolService {
     @Override
     public RolResponseDTO buscarPorNombreExacto(String nombre) {
 
-        String nombreRol = nombre.toUpperCase();
+        String nombreRol = nombre.trim().toUpperCase();
 
         log.info("Buscando rol exacto por nombre: {}", nombreRol);
 
