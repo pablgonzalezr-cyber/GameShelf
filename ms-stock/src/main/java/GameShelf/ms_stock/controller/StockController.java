@@ -2,6 +2,7 @@ package GameShelf.ms_stock.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,5 +96,15 @@ public class StockController {
         log.info("Petición GET para listar stock por estado: {}", estado);
 
         return ResponseEntity.ok(stockService.listarPorEstado(estado));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> eliminarStock(@PathVariable Long id) {
+
+        log.info("Petición DELETE para desactivar stock ID: {}", id);
+
+        stockService.eliminarStock(id);
+
+        return ResponseEntity.ok("Stock desactivado correctamente");
     }
 }
