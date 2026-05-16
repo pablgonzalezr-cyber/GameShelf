@@ -18,7 +18,7 @@ spring:
         - id: ms-autorizacion
           uri: lb://ms-autorizacion
           predicates:
-            - Path=/api/autorizacion/**
+            - Path=/api/autorizaciones/**
 
         - id: ms-videojuego
           uri: lb://ms-videojuego
