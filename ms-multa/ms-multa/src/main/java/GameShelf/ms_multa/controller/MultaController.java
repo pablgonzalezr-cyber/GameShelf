@@ -80,6 +80,16 @@ public class MultaController {
         return ResponseEntity.ok(multaService.buscarPorEstado(estado));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<MultaResponseDTO> actualizarMulta(
+            @PathVariable Long id,
+            @Valid @RequestBody MultaRequestDTO multaRequestDTO) {
+
+        log.info("Petición PUT para actualizar multa ID: {}", id);
+
+        return ResponseEntity.ok(multaService.actualizarMulta(id, multaRequestDTO));
+    }
+
     @PutMapping("/pagar/{id}")
     public ResponseEntity<MultaResponseDTO> pagarMulta(@PathVariable Long id) {
 

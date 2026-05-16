@@ -19,6 +19,8 @@ public interface MultaService {
 
     List<MultaResponseDTO> buscarPorEstado(String estado);
 
+    MultaResponseDTO actualizarMulta(Long id, MultaRequestDTO multaRequestDTO);
+
     MultaResponseDTO pagarMulta(Long id);
 
     MultaResponseDTO anularMulta(Long id);

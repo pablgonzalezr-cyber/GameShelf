@@ -29,9 +29,8 @@ public class MultaServiceImpl implements MultaService {
     private final PrestamoClient prestamoClient;
 
     public MultaServiceImpl(MultaRepository multaRepository,
-            UsuarioClient usuarioClient,
-            PrestamoClient prestamoClient) {
-
+                            UsuarioClient usuarioClient,
+                            PrestamoClient prestamoClient) {
         this.multaRepository = multaRepository;
         this.usuarioClient = usuarioClient;
         this.prestamoClient = prestamoClient;
@@ -45,6 +44,7 @@ public class MultaServiceImpl implements MultaService {
                 multaRequestDTO.getPrestamoId());
 
         validarUsuario(multaRequestDTO.getUsuarioId());
+
         PrestamoResponseDTO prestamo = validarPrestamo(multaRequestDTO.getPrestamoId());
 
         if (!prestamo.getUsuarioId().equals(multaRequestDTO.getUsuarioId())) {
@@ -141,6 +141,37 @@ public class MultaServiceImpl implements MultaService {
         }
 
         return respuesta;
+    }
+
+    @Override
+    public MultaResponseDTO actualizarMulta(Long id, MultaRequestDTO multaRequestDTO) {
+
+        log.info("Actualizando multa ID: {}", id);
+
+        MultaModel multa = multaRepository.findById(id)
+                .orElseThrow(() -> new MultaNoEncontradaException("Multa no encontrada"));
+
+        validarUsuario(multaRequestDTO.getUsuarioId());
+
+        PrestamoResponseDTO prestamo = validarPrestamo(multaRequestDTO.getPrestamoId());
+
+        if (!prestamo.getUsuarioId().equals(multaRequestDTO.getUsuarioId())) {
+            throw new DatoInvalidoException("El préstamo no pertenece al usuario indicado");
+        }
+
+        String estadoLimpio = validarEstadoMulta(multaRequestDTO.getEstado());
+
+        multa.setUsuarioId(multaRequestDTO.getUsuarioId());
+        multa.setPrestamoId(multaRequestDTO.getPrestamoId());
+        multa.setMonto(multaRequestDTO.getMonto());
+        multa.setMotivo(multaRequestDTO.getMotivo());
+        multa.setEstado(estadoLimpio);
+
+        MultaModel multaActualizada = multaRepository.save(multa);
+
+        log.info("Multa actualizada correctamente con ID: {}", id);
+
+        return convertirAResponseDTO(multaActualizada);
     }
 
     @Override
