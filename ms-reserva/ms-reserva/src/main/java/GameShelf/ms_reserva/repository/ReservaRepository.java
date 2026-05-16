@@ -1,10 +1,11 @@
 package GameShelf.ms_reserva.repository;
 
-import GameShelf.ms_reserva.model.ReservaModel;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import GameShelf.ms_reserva.model.ReservaModel;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<ReservaModel, Long> {
@@ -13,5 +14,11 @@ public interface ReservaRepository extends JpaRepository<ReservaModel, Long> {
 
     List<ReservaModel> findByVideojuegoId(Long videojuegoId);
 
-    boolean existsByUsuarioIdAndVideojuegoIdAndEstado(Long usuarioId, Long videojuegoId, String estado);
+    List<ReservaModel> findByEstado(String estado);
+
+    boolean existsByUsuarioIdAndVideojuegoIdAndEstadoIn(
+            Long usuarioId,
+            Long videojuegoId,
+            List<String> estados
+    );
 }

@@ -1,10 +1,11 @@
 package GameShelf.ms_notificacion.repository;
 
-import GameShelf.ms_notificacion.model.NotificacionModel;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import GameShelf.ms_notificacion.model.NotificacionModel;
 
 @Repository
 public interface NotificacionRepository extends JpaRepository<NotificacionModel, Long> {
@@ -12,4 +13,6 @@ public interface NotificacionRepository extends JpaRepository<NotificacionModel,
     List<NotificacionModel> findByUsuarioId(Long usuarioId);
 
     List<NotificacionModel> findByUsuarioIdAndEstado(Long usuarioId, String estado);
+
+    List<NotificacionModel> findByEstado(String estado);
 }

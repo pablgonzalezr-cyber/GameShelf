@@ -1,9 +1,9 @@
 package GameShelf.ms_notificacion.service;
 
+import java.util.List;
+
 import GameShelf.ms_notificacion.dto.NotificacionRequestDTO;
 import GameShelf.ms_notificacion.dto.NotificacionResponseDTO;
-
-import java.util.List;
 
 public interface NotificacionService {
 
@@ -14,6 +14,8 @@ public interface NotificacionService {
     List<NotificacionResponseDTO> listarPorUsuario(Long usuarioId);
 
     List<NotificacionResponseDTO> listarPendientesPorUsuario(Long usuarioId);
+
+    List<NotificacionResponseDTO> listarPorEstado(String estado);
 
     NotificacionResponseDTO crearNotificacion(NotificacionRequestDTO notificacionRequestDTO);
 

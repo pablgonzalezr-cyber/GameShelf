@@ -3,12 +3,15 @@ package GameShelf.ms_notificacion.service;
 import GameShelf.ms_notificacion.client.UsuarioClient;
 import GameShelf.ms_notificacion.dto.NotificacionRequestDTO;
 import GameShelf.ms_notificacion.dto.NotificacionResponseDTO;
+import GameShelf.ms_notificacion.dto.UsuarioResponseDTO;
 import GameShelf.ms_notificacion.exception.DatoInvalidoException;
 import GameShelf.ms_notificacion.exception.RecursoNoEncontradoException;
 import GameShelf.ms_notificacion.model.NotificacionModel;
 import GameShelf.ms_notificacion.repository.NotificacionRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -47,7 +50,7 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Override
     public List<NotificacionResponseDTO> listarPorUsuario(Long usuarioId) {
 
-        usuarioClient.obtenerUsuarioPorId(usuarioId);
+        validarUsuario(usuarioId);
 
         List<NotificacionModel> notificaciones = notificacionRepository.findByUsuarioId(usuarioId);
         List<NotificacionResponseDTO> respuesta = new ArrayList<>();
@@ -62,9 +65,24 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Override
     public List<NotificacionResponseDTO> listarPendientesPorUsuario(Long usuarioId) {
 
-        usuarioClient.obtenerUsuarioPorId(usuarioId);
+        validarUsuario(usuarioId);
 
         List<NotificacionModel> notificaciones = notificacionRepository.findByUsuarioIdAndEstado(usuarioId, "PENDIENTE");
+        List<NotificacionResponseDTO> respuesta = new ArrayList<>();
+
+        for (NotificacionModel notificacion : notificaciones) {
+            respuesta.add(convertirAResponseDTO(notificacion));
+        }
+
+        return respuesta;
+    }
+
+    @Override
+    public List<NotificacionResponseDTO> listarPorEstado(String estado) {
+
+        String estadoLimpio = validarEstado(estado);
+
+        List<NotificacionModel> notificaciones = notificacionRepository.findByEstado(estadoLimpio);
         List<NotificacionResponseDTO> respuesta = new ArrayList<>();
 
         for (NotificacionModel notificacion : notificaciones) {
@@ -79,12 +97,14 @@ public class NotificacionServiceImpl implements NotificacionService {
 
         log.info("Creando notificación para usuario ID: {}", notificacionRequestDTO.getUsuarioId());
 
-        usuarioClient.obtenerUsuarioPorId(notificacionRequestDTO.getUsuarioId());
+        validarUsuario(notificacionRequestDTO.getUsuarioId());
 
-        validarTipo(notificacionRequestDTO.getTipo());
+        String tipoLimpio = validarTipo(notificacionRequestDTO.getTipo());
 
-        if (notificacionRequestDTO.getEstado() != null && !notificacionRequestDTO.getEstado().isEmpty()) {
-            validarEstado(notificacionRequestDTO.getEstado());
+        String estadoLimpio = "PENDIENTE";
+
+        if (notificacionRequestDTO.getEstado() != null && !notificacionRequestDTO.getEstado().trim().isEmpty()) {
+            estadoLimpio = validarEstado(notificacionRequestDTO.getEstado());
         }
 
         NotificacionModel notificacion = new NotificacionModel();
@@ -92,17 +112,18 @@ public class NotificacionServiceImpl implements NotificacionService {
         notificacion.setUsuarioId(notificacionRequestDTO.getUsuarioId());
         notificacion.setTitulo(notificacionRequestDTO.getTitulo());
         notificacion.setMensaje(notificacionRequestDTO.getMensaje());
-        notificacion.setTipo(notificacionRequestDTO.getTipo().toUpperCase());
+        notificacion.setTipo(tipoLimpio);
+        notificacion.setEstado(estadoLimpio);
         notificacion.setReferenciaId(notificacionRequestDTO.getReferenciaId());
         notificacion.setReferenciaTipo(notificacionRequestDTO.getReferenciaTipo());
 
-        if (notificacionRequestDTO.getEstado() == null || notificacionRequestDTO.getEstado().isEmpty()) {
-            notificacion.setEstado("PENDIENTE");
-        } else {
-            notificacion.setEstado(notificacionRequestDTO.getEstado().toUpperCase());
+        if (estadoLimpio.equals("LEIDA")) {
+            notificacion.setFechaLectura(LocalDateTime.now());
         }
 
         NotificacionModel notificacionGuardada = notificacionRepository.save(notificacion);
+
+        log.info("Notificación creada correctamente con ID: {}", notificacionGuardada.getId());
 
         return convertirAResponseDTO(notificacionGuardada);
     }
@@ -114,23 +135,35 @@ public class NotificacionServiceImpl implements NotificacionService {
 
         NotificacionModel notificacion = buscarNotificacion(id);
 
-        usuarioClient.obtenerUsuarioPorId(notificacionRequestDTO.getUsuarioId());
+        validarUsuario(notificacionRequestDTO.getUsuarioId());
 
-        validarTipo(notificacionRequestDTO.getTipo());
-
-        if (notificacionRequestDTO.getEstado() != null && !notificacionRequestDTO.getEstado().isEmpty()) {
-            validarEstado(notificacionRequestDTO.getEstado());
-            notificacion.setEstado(notificacionRequestDTO.getEstado().toUpperCase());
-        }
+        String tipoLimpio = validarTipo(notificacionRequestDTO.getTipo());
 
         notificacion.setUsuarioId(notificacionRequestDTO.getUsuarioId());
         notificacion.setTitulo(notificacionRequestDTO.getTitulo());
         notificacion.setMensaje(notificacionRequestDTO.getMensaje());
-        notificacion.setTipo(notificacionRequestDTO.getTipo().toUpperCase());
+        notificacion.setTipo(tipoLimpio);
         notificacion.setReferenciaId(notificacionRequestDTO.getReferenciaId());
         notificacion.setReferenciaTipo(notificacionRequestDTO.getReferenciaTipo());
 
+        if (notificacionRequestDTO.getEstado() != null && !notificacionRequestDTO.getEstado().trim().isEmpty()) {
+
+            String estadoLimpio = validarEstado(notificacionRequestDTO.getEstado());
+
+            notificacion.setEstado(estadoLimpio);
+
+            if (estadoLimpio.equals("LEIDA") && notificacion.getFechaLectura() == null) {
+                notificacion.setFechaLectura(LocalDateTime.now());
+            }
+
+            if (estadoLimpio.equals("PENDIENTE")) {
+                notificacion.setFechaLectura(null);
+            }
+        }
+
         NotificacionModel notificacionActualizada = notificacionRepository.save(notificacion);
+
+        log.info("Notificación actualizada correctamente con ID: {}", notificacionActualizada.getId());
 
         return convertirAResponseDTO(notificacionActualizada);
     }
@@ -146,10 +179,16 @@ public class NotificacionServiceImpl implements NotificacionService {
             throw new DatoInvalidoException("No se puede marcar como leída una notificación eliminada");
         }
 
+        if (notificacion.getEstado().equalsIgnoreCase("LEIDA")) {
+            throw new DatoInvalidoException("La notificación ya está leída");
+        }
+
         notificacion.setEstado("LEIDA");
         notificacion.setFechaLectura(LocalDateTime.now());
 
         NotificacionModel notificacionActualizada = notificacionRepository.save(notificacion);
+
+        log.info("Notificación marcada como leída correctamente con ID: {}", id);
 
         return convertirAResponseDTO(notificacionActualizada);
     }
@@ -168,6 +207,8 @@ public class NotificacionServiceImpl implements NotificacionService {
         notificacion.setEstado("ELIMINADA");
 
         notificacionRepository.save(notificacion);
+
+        log.info("Notificación eliminada lógicamente con ID: {}", id);
     }
 
     private NotificacionModel buscarNotificacion(Long id) {
@@ -176,29 +217,58 @@ public class NotificacionServiceImpl implements NotificacionService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Notificación no encontrada"));
     }
 
-    private void validarEstado(String estado) {
+    private void validarUsuario(Long usuarioId) {
 
-        String estadoMayuscula = estado.toUpperCase();
+        if (usuarioId == null) {
+            throw new DatoInvalidoException("El usuario es obligatorio");
+        }
 
-        if (!estadoMayuscula.equals("PENDIENTE") &&
-                !estadoMayuscula.equals("LEIDA") &&
-                !estadoMayuscula.equals("ELIMINADA")) {
+        UsuarioResponseDTO usuario = usuarioClient.obtenerUsuarioPorId(usuarioId);
 
-            throw new DatoInvalidoException("Estado inválido. Debe ser PENDIENTE, LEIDA o ELIMINADA");
+        if (usuario == null) {
+            throw new DatoInvalidoException("El usuario no existe");
+        }
+
+        if (usuario.getEstado() != null && !usuario.getEstado().equalsIgnoreCase("ACTIVO")) {
+            throw new DatoInvalidoException("El usuario no está activo");
         }
     }
 
-    private void validarTipo(String tipo) {
+    private String validarEstado(String estado) {
 
-        String tipoMayuscula = tipo.toUpperCase();
+        if (estado == null || estado.trim().isEmpty()) {
+            throw new DatoInvalidoException("El estado es obligatorio");
+        }
 
-        if (!tipoMayuscula.equals("RESERVA") &&
-                !tipoMayuscula.equals("PRESTAMO") &&
-                !tipoMayuscula.equals("MULTA") &&
-                !tipoMayuscula.equals("SISTEMA")) {
+        String estadoLimpio = estado.trim().toUpperCase();
+
+        if (!estadoLimpio.equals("PENDIENTE")
+                && !estadoLimpio.equals("LEIDA")
+                && !estadoLimpio.equals("ELIMINADA")) {
+
+            throw new DatoInvalidoException("Estado inválido. Debe ser PENDIENTE, LEIDA o ELIMINADA");
+        }
+
+        return estadoLimpio;
+    }
+
+    private String validarTipo(String tipo) {
+
+        if (tipo == null || tipo.trim().isEmpty()) {
+            throw new DatoInvalidoException("El tipo es obligatorio");
+        }
+
+        String tipoLimpio = tipo.trim().toUpperCase();
+
+        if (!tipoLimpio.equals("RESERVA")
+                && !tipoLimpio.equals("PRESTAMO")
+                && !tipoLimpio.equals("MULTA")
+                && !tipoLimpio.equals("SISTEMA")) {
 
             throw new DatoInvalidoException("Tipo inválido. Debe ser RESERVA, PRESTAMO, MULTA o SISTEMA");
         }
+
+        return tipoLimpio;
     }
 
     private NotificacionResponseDTO convertirAResponseDTO(NotificacionModel notificacion) {
