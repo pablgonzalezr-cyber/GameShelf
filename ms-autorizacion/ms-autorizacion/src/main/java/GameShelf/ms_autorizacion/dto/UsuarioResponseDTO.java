@@ -9,4 +9,5 @@ public class UsuarioResponseDTO {
     private String usuario;
     private String correo;
     private String rol;
+    private String estado;
 }
