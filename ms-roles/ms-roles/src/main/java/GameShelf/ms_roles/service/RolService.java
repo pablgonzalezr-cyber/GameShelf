@@ -22,4 +22,6 @@ public interface RolService {
     List<RolResponseDTO> buscarPorNombre(String nombre);
 
     RolResponseDTO buscarPorNombreExacto(String nombre);
+
+    boolean validarRolActivo(String nombre);
 }

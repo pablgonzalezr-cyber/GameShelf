@@ -106,4 +106,12 @@ public class RolController {
 
         return ResponseEntity.ok(rolService.buscarPorNombreExacto(nombre));
     }
+
+    @GetMapping("/validar/{nombre}")
+    public ResponseEntity<Boolean> validarRol(@PathVariable String nombre) {
+
+        log.info("Petición GET para validar rol: {}", nombre);
+
+        return ResponseEntity.ok(rolService.validarRolActivo(nombre));
+    }
 }

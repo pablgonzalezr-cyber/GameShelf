@@ -165,6 +165,20 @@ public class RolServiceImpl implements RolService {
         return convertirAResponseDTO(rol);
     }
 
+    @Override
+    public boolean validarRolActivo(String nombre) {
+
+        if (nombre == null || nombre.isBlank()) {
+            return false;
+        }
+
+        String nombreRol = nombre.trim().toUpperCase();
+
+        log.info("Validando si el rol existe y está activo: {}", nombreRol);
+
+        return rolRepository.existsByNombreAndEstado(nombreRol, "ACTIVO");
+    }
+
     private String validarEstado(String estado) {
 
         if (estado == null || estado.isBlank()) {
