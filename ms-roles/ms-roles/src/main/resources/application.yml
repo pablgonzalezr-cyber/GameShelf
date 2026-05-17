@@ -3,7 +3,7 @@ spring:
     name: ms-roles
 
   datasource:
-    url: jdbc:mysql://localhost:3306/db_roles
+    url: jdbc:mysql://localhost:3307/db_roles
     username: root
     password: ""
 

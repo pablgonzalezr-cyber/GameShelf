@@ -1,4 +1,4 @@
-package GameShelf.ms_usuario.Service;
+package GameShelf.ms_usuario.service;
 
 import java.util.ArrayList;
 import java.util.List;

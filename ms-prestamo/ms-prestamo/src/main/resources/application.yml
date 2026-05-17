@@ -3,7 +3,7 @@ spring:
     name: ms-prestamo
 
   datasource:
-    url: jdbc:mysql://localhost:3306/db_prestamo
+    url: jdbc:mysql://localhost:3307/db_prestamo
     username: root
     password: ""
 

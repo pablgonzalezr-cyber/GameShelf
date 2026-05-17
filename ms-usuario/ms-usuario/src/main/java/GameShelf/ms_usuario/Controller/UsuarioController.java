@@ -1,4 +1,4 @@
-package GameShelf.ms_usuario.Controller;
+package GameShelf.ms_usuario.controller;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import GameShelf.ms_usuario.Service.UsuarioService;
 import GameShelf.ms_usuario.dto.UsuarioRequestDTO;
 import GameShelf.ms_usuario.dto.UsuarioResponseDTO;
 import GameShelf.ms_usuario.dto.UsuarioUpdateDTO;
+import GameShelf.ms_usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 

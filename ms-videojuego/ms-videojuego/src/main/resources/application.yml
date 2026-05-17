@@ -3,7 +3,7 @@ spring:
     name: ms-videojuego
 
   datasource:
-    url: jdbc:mysql://localhost:3306/db_videojuego
+    url: jdbc:mysql://localhost:3307/db_videojuego
     username: root
     password: ""
 

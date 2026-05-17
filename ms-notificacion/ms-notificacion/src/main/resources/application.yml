@@ -6,7 +6,7 @@ spring:
     name: ms-notificacion
 
   datasource:
-    url: jdbc:mysql://localhost:3306/db_notificacion?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago
+    url: jdbc:mysql://localhost:3307/db_notificacion?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver

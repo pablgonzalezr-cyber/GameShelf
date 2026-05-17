@@ -2,7 +2,7 @@ spring:
   application:
     name: ms-reserva
   datasource:
-    url: jdbc:mysql://localhost:3306/db_reserva
+    url: jdbc:mysql://localhost:3307/db_reserva
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
