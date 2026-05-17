@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RestController
+@RestController 
 @RequestMapping("/api/stocks")
 public class StockController {
 
