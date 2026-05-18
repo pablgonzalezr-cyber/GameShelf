@@ -1,5 +1,10 @@
 package GameShelf.ms_autorizacion.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import GameShelf.ms_autorizacion.client.RolClient;
 import GameShelf.ms_autorizacion.client.UsuarioClient;
 import GameShelf.ms_autorizacion.dto.AutorizacionRequestDTO;
@@ -10,10 +15,6 @@ import GameShelf.ms_autorizacion.exception.DatoInvalidoException;
 import GameShelf.ms_autorizacion.exception.RecursoNoEncontradoException;
 import GameShelf.ms_autorizacion.model.AutorizacionModel;
 import GameShelf.ms_autorizacion.repository.AutorizacionRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class AutorizacionServiceImpl implements AutorizacionService {
@@ -217,19 +218,14 @@ public class AutorizacionServiceImpl implements AutorizacionService {
         String moduloLimpio = modulo.trim().toUpperCase();
 
         boolean valido =
-                moduloLimpio.equals("USUARIOS") ||
-                moduloLimpio.equals("ROLES") ||
-                moduloLimpio.equals("VIDEOJUEGOS") ||
-                moduloLimpio.equals("CATEGORIAS") ||
-                moduloLimpio.equals("STOCK") ||
+                moduloLimpio.equals("CATALOGO") ||
                 moduloLimpio.equals("PRESTAMOS") ||
-                moduloLimpio.equals("MULTAS") ||
                 moduloLimpio.equals("RESERVAS") ||
-                moduloLimpio.equals("NOTIFICACIONES") ||
-                moduloLimpio.equals("AUTORIZACIONES");
+                moduloLimpio.equals("MULTAS") ||
+                moduloLimpio.equals("ADMINISTRADOR");
 
         if (!valido) {
-            throw new DatoInvalidoException("Módulo inválido");
+            throw new DatoInvalidoException("El módulo debe ser CATALOGO, PRESTAMOS, RESERVAS, MULTAS o ADMINISTRADOR");
         }
     }
 
@@ -242,13 +238,15 @@ public class AutorizacionServiceImpl implements AutorizacionService {
         String permisoLimpio = permiso.trim().toUpperCase();
 
         boolean valido =
-                permisoLimpio.equals("LECTURA") ||
-                permisoLimpio.equals("ESCRITURA") ||
-                permisoLimpio.equals("ADMIN") ||
-                permisoLimpio.equals("TOTAL");
+                permisoLimpio.equals("TOTAL") ||
+                permisoLimpio.equals("VER_CATALOGO") ||
+                permisoLimpio.equals("GESTIONAR_MULTAS") ||
+                permisoLimpio.equals("ADMINISTRADOR") ||
+                permisoLimpio.equals("GESTIONAR_RESERVAS_Y_PRESTAMOS") ||
+                permisoLimpio.equals("TESTEADOR");
 
         if (!valido) {
-            throw new DatoInvalidoException("El permiso debe ser LECTURA, ESCRITURA, ADMIN o TOTAL");
+            throw new DatoInvalidoException("El permiso debe ser TOTAL, VER_CATALOGO, GESTIONAR_MULTAS, ADMINISTRADOR o TESTEADOR");
         }
     }
 
@@ -276,4 +274,5 @@ public class AutorizacionServiceImpl implements AutorizacionService {
                 autorizacion.getEstado()
         );
     }
+
 }
