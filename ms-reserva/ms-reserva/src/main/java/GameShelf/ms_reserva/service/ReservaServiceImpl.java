@@ -1,5 +1,12 @@
 package GameShelf.ms_reserva.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import GameShelf.ms_reserva.client.StockClient;
 import GameShelf.ms_reserva.client.UsuarioClient;
 import GameShelf.ms_reserva.client.VideojuegoClient;
@@ -13,15 +20,7 @@ import GameShelf.ms_reserva.exception.DatoInvalidoException;
 import GameShelf.ms_reserva.exception.RecursoNoEncontradoException;
 import GameShelf.ms_reserva.model.ReservaModel;
 import GameShelf.ms_reserva.repository.ReservaRepository;
-
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -122,7 +121,6 @@ public class ReservaServiceImpl implements ReservaService {
 
         validarStockDisponible(reservaRequestDTO.getVideojuegoId());
 
-        validarFechaVencimiento(reservaRequestDTO.getFechaVencimiento());
 
         List<String> estadosActivos = Arrays.asList("PENDIENTE", "CONFIRMADA");
 
@@ -142,7 +140,6 @@ public class ReservaServiceImpl implements ReservaService {
         reserva.setUsuarioId(reservaRequestDTO.getUsuarioId());
         reserva.setVideojuegoId(reservaRequestDTO.getVideojuegoId());
         reserva.setFechaReserva(LocalDate.now());
-        reserva.setFechaVencimiento(reservaRequestDTO.getFechaVencimiento());
         reserva.setEstado("PENDIENTE");
 
         ReservaModel reservaGuardada = reservaRepository.save(reserva);
@@ -172,9 +169,6 @@ public class ReservaServiceImpl implements ReservaService {
 
         validarVideojuego(reservaRequestDTO.getVideojuegoId());
 
-        validarFechaVencimiento(reservaRequestDTO.getFechaVencimiento());
-
-        reserva.setFechaVencimiento(reservaRequestDTO.getFechaVencimiento());
 
         if (reservaRequestDTO.getEstado() != null && !reservaRequestDTO.getEstado().trim().isEmpty()) {
             String estadoLimpio = validarEstado(reservaRequestDTO.getEstado());
@@ -304,17 +298,6 @@ public class ReservaServiceImpl implements ReservaService {
         }
     }
 
-    private void validarFechaVencimiento(LocalDate fechaVencimiento) {
-
-        if (fechaVencimiento == null) {
-            throw new DatoInvalidoException("La fecha de vencimiento es obligatoria");
-        }
-
-        if (fechaVencimiento.isBefore(LocalDate.now())) {
-            throw new DatoInvalidoException("La fecha de vencimiento no puede ser anterior a la fecha actual");
-        }
-    }
-
     private String validarEstado(String estado) {
 
         if (estado == null || estado.trim().isEmpty()) {
@@ -341,7 +324,6 @@ public class ReservaServiceImpl implements ReservaService {
                 reserva.getUsuarioId(),
                 reserva.getVideojuegoId(),
                 reserva.getFechaReserva(),
-                reserva.getFechaVencimiento(),
                 reserva.getEstado()
         );
     }

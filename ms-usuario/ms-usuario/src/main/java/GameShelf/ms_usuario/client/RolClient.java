@@ -11,4 +11,6 @@ public interface RolClient {
 
     @GetMapping("/api/roles/nombre/{nombre}")
     RolResponseDTO buscarRolPorNombre(@PathVariable String nombre);
+    
+
 }

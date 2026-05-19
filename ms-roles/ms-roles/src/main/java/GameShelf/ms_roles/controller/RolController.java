@@ -69,7 +69,7 @@ public class RolController {
 
         return ResponseEntity.ok(rolActualizado);
     }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> eliminarRol(@PathVariable Long id) {
 

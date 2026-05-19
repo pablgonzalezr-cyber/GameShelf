@@ -55,7 +55,7 @@ spring:
           predicates:
             - Path=/api/notificaciones/**
 
-server:
+server: 
   port: 8080
 
 eureka:

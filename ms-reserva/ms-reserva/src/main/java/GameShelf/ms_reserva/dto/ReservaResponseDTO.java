@@ -1,10 +1,10 @@
 package GameShelf.ms_reserva.dto;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -15,6 +15,5 @@ public class ReservaResponseDTO {
     private Long usuarioId;
     private Long videojuegoId;
     private LocalDate fechaReserva;
-    private LocalDate fechaVencimiento;
     private String estado;
 }

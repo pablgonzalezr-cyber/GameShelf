@@ -64,10 +64,11 @@ public class PrestamoServiceImpl implements PrestamoService {
         stockClient.reducirStock(prestamoRequestDTO.getVideojuegoId());
 
         PrestamoModel prestamo = new PrestamoModel();
+
         prestamo.setUsuarioId(prestamoRequestDTO.getUsuarioId());
         prestamo.setVideojuegoId(prestamoRequestDTO.getVideojuegoId());
         prestamo.setFechaPrestamo(LocalDate.now());
-        prestamo.setFechaDevolucion(null);
+        prestamo.setFechaDevolucion(prestamoRequestDTO.getFechaDevolucion());
         prestamo.setEstado("PRESTADO");
 
         PrestamoModel prestamoGuardado = prestamoRepository.save(prestamo);
