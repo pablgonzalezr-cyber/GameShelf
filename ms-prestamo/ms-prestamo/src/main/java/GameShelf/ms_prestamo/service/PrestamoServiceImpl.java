@@ -11,6 +11,8 @@ import GameShelf.ms_prestamo.client.UsuarioClient;
 import GameShelf.ms_prestamo.client.VideoJuegoClient;
 import GameShelf.ms_prestamo.dto.PrestamoRequestDTO;
 import GameShelf.ms_prestamo.dto.PrestamoResponseDTO;
+import GameShelf.ms_prestamo.dto.RenovacionPrestamoRequestDTO;
+import GameShelf.ms_prestamo.dto.RenovacionPrestamoResponseDTO;
 import GameShelf.ms_prestamo.dto.StockResponseDTO;
 import GameShelf.ms_prestamo.dto.UsuarioResponseDTO;
 import GameShelf.ms_prestamo.dto.VideoJuegoResponseDTO;
@@ -18,7 +20,9 @@ import GameShelf.ms_prestamo.exception.ComunicacionMicroservicioException;
 import GameShelf.ms_prestamo.exception.DatoInvalidoException;
 import GameShelf.ms_prestamo.exception.PrestamoNoEncontradoException;
 import GameShelf.ms_prestamo.model.PrestamoModel;
+import GameShelf.ms_prestamo.model.RenovacionPrestamoModel;
 import GameShelf.ms_prestamo.repository.PrestamoRepository;
+import GameShelf.ms_prestamo.repository.RenovacionPrestamoRepository;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,16 +31,19 @@ import lombok.extern.slf4j.Slf4j;
 public class PrestamoServiceImpl implements PrestamoService {
 
     private final PrestamoRepository prestamoRepository;
+    private final RenovacionPrestamoRepository renovacionPrestamoRepository;
     private final UsuarioClient usuarioClient;
     private final VideoJuegoClient videoJuegoClient;
     private final StockClient stockClient;
 
-    public PrestamoServiceImpl(PrestamoRepository prestamoRepository,
+   public PrestamoServiceImpl(PrestamoRepository prestamoRepository,
+            RenovacionPrestamoRepository renovacionPrestamoRepository,
             UsuarioClient usuarioClient,
             VideoJuegoClient videoJuegoClient,
             StockClient stockClient) {
 
         this.prestamoRepository = prestamoRepository;
+        this.renovacionPrestamoRepository = renovacionPrestamoRepository;
         this.usuarioClient = usuarioClient;
         this.videoJuegoClient = videoJuegoClient;
         this.stockClient = stockClient;
@@ -195,6 +202,64 @@ public class PrestamoServiceImpl implements PrestamoService {
         log.info("Préstamo cancelado correctamente con ID: {}", id);
     }
 
+    @Override
+    public RenovacionPrestamoResponseDTO renovarPrestamo(Long id, RenovacionPrestamoRequestDTO requestDTO) {
+
+        log.info("Renovando préstamo ID: {}", id);
+
+        PrestamoModel prestamo = prestamoRepository.findById(id)
+                .orElseThrow(() -> new PrestamoNoEncontradoException("Préstamo no encontrado"));
+
+        if (!prestamo.getEstado().equalsIgnoreCase("PRESTADO")) {
+            throw new DatoInvalidoException("Solo se pueden renovar préstamos en estado PRESTADO");
+        }
+
+        if (prestamo.getFechaDevolucion() == null) {
+            throw new DatoInvalidoException("El préstamo no tiene una fecha de devolución definida para renovar");
+        }
+
+        if (!requestDTO.getNuevaFechaDevolucion().isAfter(prestamo.getFechaDevolucion())) {
+            throw new DatoInvalidoException("La nueva fecha de devolución debe ser posterior a la fecha actual de devolución");
+        }
+
+        RenovacionPrestamoModel renovacion = new RenovacionPrestamoModel();
+
+        renovacion.setPrestamo(prestamo);
+        renovacion.setFechaAnteriorDevolucion(prestamo.getFechaDevolucion());
+        renovacion.setNuevaFechaDevolucion(requestDTO.getNuevaFechaDevolucion());
+        renovacion.setMotivo(requestDTO.getMotivo());
+        renovacion.setFechaRenovacion(LocalDate.now());
+
+        RenovacionPrestamoModel renovacionGuardada = renovacionPrestamoRepository.save(renovacion);
+
+        prestamo.setFechaDevolucion(requestDTO.getNuevaFechaDevolucion());
+        prestamoRepository.save(prestamo);
+
+        log.info("Préstamo ID {} renovado hasta {}", id, requestDTO.getNuevaFechaDevolucion());
+
+        return convertirRenovacionAResponseDTO(renovacionGuardada);
+    }
+
+    @Override
+    public List<RenovacionPrestamoResponseDTO> listarRenovacionesPorPrestamo(Long id) {
+
+        log.info("Listando renovaciones del préstamo ID: {}", id);
+
+        PrestamoModel prestamo = prestamoRepository.findById(id)
+                .orElseThrow(() -> new PrestamoNoEncontradoException("Préstamo no encontrado"));
+
+        List<RenovacionPrestamoModel> renovaciones =
+                renovacionPrestamoRepository.findByPrestamoIdOrderByFechaRenovacionAsc(prestamo.getId());
+
+        List<RenovacionPrestamoResponseDTO> respuesta = new ArrayList<>();
+
+        for (RenovacionPrestamoModel renovacion : renovaciones) {
+            respuesta.add(convertirRenovacionAResponseDTO(renovacion));
+        }
+
+        return respuesta;
+    }
+
     private UsuarioResponseDTO validarUsuario(Long usuarioId) {
 
         if (usuarioId == null) {
@@ -310,4 +375,17 @@ public class PrestamoServiceImpl implements PrestamoService {
                 prestamo.getFechaDevolucion(),
                 prestamo.getEstado());
     }
+
+    private RenovacionPrestamoResponseDTO convertirRenovacionAResponseDTO(RenovacionPrestamoModel renovacion) {
+
+        return new RenovacionPrestamoResponseDTO(
+                renovacion.getId(),
+                renovacion.getPrestamo().getId(),
+                renovacion.getFechaAnteriorDevolucion(),
+                renovacion.getNuevaFechaDevolucion(),
+                renovacion.getMotivo(),
+                renovacion.getFechaRenovacion()
+        );
+    }
+
 }

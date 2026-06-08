@@ -4,10 +4,19 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import GameShelf.ms_prestamo.dto.PrestamoRequestDTO;
 import GameShelf.ms_prestamo.dto.PrestamoResponseDTO;
+import GameShelf.ms_prestamo.dto.RenovacionPrestamoRequestDTO;
+import GameShelf.ms_prestamo.dto.RenovacionPrestamoResponseDTO;
 import GameShelf.ms_prestamo.service.PrestamoService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -89,5 +98,25 @@ public class PrestamoController {
         prestamoService.cancelarPrestamo(id);
 
         return ResponseEntity.ok("Préstamo cancelado correctamente");
+    }
+
+    @PostMapping("/{id}/renovaciones")
+    public ResponseEntity<RenovacionPrestamoResponseDTO> renovarPrestamo(
+            @PathVariable Long id,
+            @Valid @RequestBody RenovacionPrestamoRequestDTO requestDTO) {
+
+        log.info("Petición POST para renovar préstamo ID: {}", id);
+
+        RenovacionPrestamoResponseDTO renovacion = prestamoService.renovarPrestamo(id, requestDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(renovacion);
+    }
+
+    @GetMapping("/{id}/renovaciones")
+    public ResponseEntity<List<RenovacionPrestamoResponseDTO>> listarRenovacionesPorPrestamo(@PathVariable Long id) {
+
+        log.info("Petición GET para listar renovaciones del préstamo ID: {}", id);
+
+        return ResponseEntity.ok(prestamoService.listarRenovacionesPorPrestamo(id));
     }
 }

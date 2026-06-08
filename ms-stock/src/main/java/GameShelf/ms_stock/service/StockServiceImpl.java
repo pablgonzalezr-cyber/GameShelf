@@ -41,6 +41,7 @@ public class StockServiceImpl implements StockService {
             throw new DatoDuplicadoException("Ya existe stock para este videojuego");
         }
 
+
         validarCantidades(stockRequestDTO.getCantidadTotal(), stockRequestDTO.getCantidadDisponible());
 
         StockModel stock = new StockModel();
@@ -275,4 +276,6 @@ public class StockServiceImpl implements StockService {
                 stock.getCantidadDisponible(),
                 stock.getEstado());
     }
+
+    
 }

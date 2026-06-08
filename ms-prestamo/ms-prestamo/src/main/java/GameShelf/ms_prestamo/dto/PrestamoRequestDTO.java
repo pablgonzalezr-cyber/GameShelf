@@ -13,7 +13,7 @@ public class PrestamoRequestDTO {
 
     @NotNull(message = "El ID del videojuego es obligatorio")
     private Long videojuegoId;
-
+    
     private LocalDate fechaPrestamo;
 
     private LocalDate fechaDevolucion;
