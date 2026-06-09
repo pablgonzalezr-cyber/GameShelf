@@ -4,6 +4,8 @@ import java.util.List;
 
 import GameShelf.ms_multa.dto.MultaRequestDTO;
 import GameShelf.ms_multa.dto.MultaResponseDTO;
+import GameShelf.ms_multa.dto.PagoMultaRequestDTO;
+import GameShelf.ms_multa.dto.PagoMultaResponseDTO;
 
 public interface MultaService {
 
@@ -24,6 +26,10 @@ public interface MultaService {
     MultaResponseDTO pagarMulta(Long id);
 
     MultaResponseDTO anularMulta(Long id);
+
+    PagoMultaResponseDTO registrarPago(Long multaId, PagoMultaRequestDTO pagoRequestDTO);
+
+    List<PagoMultaResponseDTO> listarPagosPorMulta(Long multaId);
 
     void eliminarMulta(Long id);
 }

@@ -10,13 +10,17 @@ import GameShelf.ms_multa.client.PrestamoClient;
 import GameShelf.ms_multa.client.UsuarioClient;
 import GameShelf.ms_multa.dto.MultaRequestDTO;
 import GameShelf.ms_multa.dto.MultaResponseDTO;
+import GameShelf.ms_multa.dto.PagoMultaRequestDTO;
+import GameShelf.ms_multa.dto.PagoMultaResponseDTO;
 import GameShelf.ms_multa.dto.PrestamoResponseDTO;
 import GameShelf.ms_multa.dto.UsuarioResponseDTO;
 import GameShelf.ms_multa.exception.ComunicacionMicroservicioException;
 import GameShelf.ms_multa.exception.DatoInvalidoException;
 import GameShelf.ms_multa.exception.MultaNoEncontradaException;
 import GameShelf.ms_multa.model.MultaModel;
+import GameShelf.ms_multa.model.PagoMultaModel;
 import GameShelf.ms_multa.repository.MultaRepository;
+import GameShelf.ms_multa.repository.PagoMultaRepository;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,11 +31,14 @@ public class MultaServiceImpl implements MultaService {
     private final MultaRepository multaRepository;
     private final UsuarioClient usuarioClient;
     private final PrestamoClient prestamoClient;
+    private final PagoMultaRepository pagoMultaRepository;
 
     public MultaServiceImpl(MultaRepository multaRepository,
+                            PagoMultaRepository pagoMultaRepository,
                             UsuarioClient usuarioClient,
                             PrestamoClient prestamoClient) {
         this.multaRepository = multaRepository;
+        this.pagoMultaRepository = pagoMultaRepository;
         this.usuarioClient = usuarioClient;
         this.prestamoClient = prestamoClient;
     }
@@ -229,6 +236,70 @@ public class MultaServiceImpl implements MultaService {
         log.info("Multa eliminada correctamente con ID: {}", id);
     }
 
+    @Override
+    public PagoMultaResponseDTO registrarPago(Long multaId, PagoMultaRequestDTO pagoRequestDTO) {
+
+        log.info("Registrando pago para multa ID: {}", multaId);
+
+        MultaModel multa = multaRepository.findById(multaId)
+                .orElseThrow(() -> new MultaNoEncontradaException("Multa no encontrada"));
+
+        if (multa.getEstado().equalsIgnoreCase("ANULADA")) {
+            throw new DatoInvalidoException("No se puede pagar una multa anulada");
+        }
+
+        if (multa.getEstado().equalsIgnoreCase("PAGADA")) {
+            throw new DatoInvalidoException("La multa ya se encuentra pagada");
+        }
+
+        if (pagoRequestDTO.getMontoPagado() == null) {
+            throw new DatoInvalidoException("El monto pagado es obligatorio");
+        }
+
+        if (Double.compare(pagoRequestDTO.getMontoPagado(), multa.getMonto()) != 0) {
+            throw new DatoInvalidoException(
+                    "El monto pagado debe ser exactamente igual al monto de la multa: " + multa.getMonto());
+        }
+
+        PagoMultaModel pago = new PagoMultaModel();
+        pago.setMulta(multa);
+        pago.setMontoPagado(pagoRequestDTO.getMontoPagado());
+        pago.setFechaPago(LocalDate.now());
+        pago.setMetodoPago(pagoRequestDTO.getMetodoPago().trim().toUpperCase());
+        pago.setEstadoPago("CONFIRMADO");
+
+        multa.getPagos().add(pago);
+
+        // Como el pago debe ser completo, la multa pasa directamente a PAGADA
+        multa.setEstado("PAGADA");
+
+        MultaModel multaGuardada = multaRepository.save(multa);
+
+        PagoMultaModel pagoGuardado = multaGuardada.getPagos().get(multaGuardada.getPagos().size() - 1);
+
+        log.info("Pago registrado correctamente para multa ID: {}", multaId);
+
+        return convertirPagoAResponseDTO(pagoGuardado);
+    }  
+
+    @Override
+    public List<PagoMultaResponseDTO> listarPagosPorMulta(Long multaId) {
+
+        log.info("Listando pagos de multa ID: {}", multaId);
+
+        multaRepository.findById(multaId)
+                .orElseThrow(() -> new MultaNoEncontradaException("Multa no encontrada"));
+
+        List<PagoMultaModel> pagos = pagoMultaRepository.findByMultaId(multaId);
+        List<PagoMultaResponseDTO> respuesta = new ArrayList<>();
+
+        for (PagoMultaModel pago : pagos) {
+            respuesta.add(convertirPagoAResponseDTO(pago));
+        }
+
+        return respuesta;
+    }
+
     private UsuarioResponseDTO validarUsuario(Long usuarioId) {
 
         if (usuarioId == null) {
@@ -299,6 +370,17 @@ public class MultaServiceImpl implements MultaService {
         }
 
         return estadoLimpio;
+    }
+
+    private PagoMultaResponseDTO convertirPagoAResponseDTO(PagoMultaModel pago) {
+
+        return new PagoMultaResponseDTO(
+                pago.getId(),
+                pago.getMulta().getId(),
+                pago.getMontoPagado(),
+                pago.getFechaPago(),
+                pago.getMetodoPago(),
+                pago.getEstadoPago());
     }
 
     private MultaResponseDTO convertirAResponseDTO(MultaModel multa) {

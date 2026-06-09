@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import GameShelf.ms_multa.dto.MultaRequestDTO;
 import GameShelf.ms_multa.dto.MultaResponseDTO;
+import GameShelf.ms_multa.dto.PagoMultaRequestDTO;
+import GameShelf.ms_multa.dto.PagoMultaResponseDTO;
 import GameShelf.ms_multa.service.MultaService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -104,6 +106,26 @@ public class MultaController {
         log.info("Petición PUT para anular multa ID: {}", id);
 
         return ResponseEntity.ok(multaService.anularMulta(id));
+    }
+
+    @PostMapping("/{id}/pagos")
+    public ResponseEntity<PagoMultaResponseDTO> registrarPago(
+            @PathVariable Long id,
+            @Valid @RequestBody PagoMultaRequestDTO pagoRequestDTO) {
+
+        log.info("Petición POST para registrar pago de multa ID: {}", id);
+
+        PagoMultaResponseDTO pago = multaService.registrarPago(id, pagoRequestDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(pago);
+    }
+
+    @GetMapping("/{id}/pagos")
+    public ResponseEntity<List<PagoMultaResponseDTO>> listarPagosPorMulta(@PathVariable Long id) {
+
+        log.info("Petición GET para listar pagos de multa ID: {}", id);
+
+        return ResponseEntity.ok(multaService.listarPagosPorMulta(id));
     }
 
     @DeleteMapping("/{id}")

@@ -12,8 +12,8 @@ public class MsPrestamoApplication {
         SpringApplication.run(MsPrestamoApplication.class, args);
 
 
-        
+
     }
 
-
+    
 }
