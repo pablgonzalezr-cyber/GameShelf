@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import GameShelf.ms_reserva.dto.HistorialReservaResponseDTO;
 import GameShelf.ms_reserva.dto.ReservaRequestDTO;
 import GameShelf.ms_reserva.dto.ReservaResponseDTO;
 import GameShelf.ms_reserva.service.ReservaService;
@@ -104,6 +105,14 @@ public class ReservaController {
         log.info("Petición PUT para cancelar reserva ID: {}", id);
 
         return ResponseEntity.ok(reservaService.cancelarReserva(id));
+    }
+
+    @GetMapping("/{id}/historial")
+    public ResponseEntity<List<HistorialReservaResponseDTO>> listarHistorialPorReserva(@PathVariable Long id) {
+
+        log.info("Petición GET para listar historial de reserva ID: {}", id);
+
+        return ResponseEntity.ok(reservaService.listarHistorialPorReserva(id));
     }
 
     @DeleteMapping("/{id}")

@@ -2,6 +2,7 @@ package GameShelf.ms_reserva.service;
 
 import java.util.List;
 
+import GameShelf.ms_reserva.dto.HistorialReservaResponseDTO;
 import GameShelf.ms_reserva.dto.ReservaRequestDTO;
 import GameShelf.ms_reserva.dto.ReservaResponseDTO;
 
@@ -24,6 +25,8 @@ public interface ReservaService {
     ReservaResponseDTO confirmarReserva(Long id);
 
     ReservaResponseDTO cancelarReserva(Long id);
+
+    List<HistorialReservaResponseDTO> listarHistorialPorReserva(Long reservaId);
 
     void eliminarReserva(Long id);
 }

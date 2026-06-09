@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import GameShelf.ms_reserva.dto.HistorialReservaResponseDTO;
+import GameShelf.ms_reserva.model.HistorialReservaModel;
+import GameShelf.ms_reserva.repository.HistorialReservaRepository;
 import GameShelf.ms_reserva.client.StockClient;
 import GameShelf.ms_reserva.client.UsuarioClient;
 import GameShelf.ms_reserva.client.VideojuegoClient;
@@ -30,12 +32,15 @@ public class ReservaServiceImpl implements ReservaService {
     private final UsuarioClient usuarioClient;
     private final VideojuegoClient videojuegoClient;
     private final StockClient stockClient;
+    private final HistorialReservaRepository historialReservaRepository;
 
     public ReservaServiceImpl(ReservaRepository reservaRepository,
-                              UsuarioClient usuarioClient,
-                              VideojuegoClient videojuegoClient,
-                              StockClient stockClient) {
+                            HistorialReservaRepository historialReservaRepository,
+                            UsuarioClient usuarioClient,
+                            VideojuegoClient videojuegoClient,
+                            StockClient stockClient) {
         this.reservaRepository = reservaRepository;
+        this.historialReservaRepository = historialReservaRepository;
         this.usuarioClient = usuarioClient;
         this.videojuegoClient = videojuegoClient;
         this.stockClient = stockClient;
@@ -144,6 +149,13 @@ public class ReservaServiceImpl implements ReservaService {
 
         ReservaModel reservaGuardada = reservaRepository.save(reserva);
 
+        registrarHistorial(
+                reservaGuardada,
+                null,
+                "PENDIENTE",
+                "Reserva creada correctamente"
+        );
+
         log.info("Reserva creada correctamente con ID: {}", reservaGuardada.getId());
 
         return convertirAResponseDTO(reservaGuardada);
@@ -194,9 +206,18 @@ public class ReservaServiceImpl implements ReservaService {
             throw new DatoInvalidoException("Solo se pueden confirmar reservas pendientes");
         }
 
+        String estadoAnterior = reserva.getEstado();
+
         reserva.setEstado("CONFIRMADA");
 
         ReservaModel reservaConfirmada = reservaRepository.save(reserva);
+
+        registrarHistorial(
+                reservaConfirmada,
+                estadoAnterior,
+                "CONFIRMADA",
+                "Reserva confirmada correctamente"
+        );
 
         log.info("Reserva confirmada correctamente con ID: {}", reservaConfirmada.getId());
 
@@ -219,11 +240,20 @@ public class ReservaServiceImpl implements ReservaService {
             throw new DatoInvalidoException("No se puede cancelar una reserva expirada");
         }
 
+        String estadoAnterior = reserva.getEstado();
+
         stockClient.aumentarStock(reserva.getVideojuegoId());
 
         reserva.setEstado("CANCELADA");
 
         ReservaModel reservaCancelada = reservaRepository.save(reserva);
+
+        registrarHistorial(
+                reservaCancelada,
+                estadoAnterior,
+                "CANCELADA",
+                "Reserva cancelada correctamente"
+        );
 
         log.info("Reserva cancelada correctamente con ID: {}", reservaCancelada.getId());
 
@@ -246,11 +276,20 @@ public class ReservaServiceImpl implements ReservaService {
             throw new DatoInvalidoException("No se puede eliminar una reserva expirada");
         }
 
+        String estadoAnterior = reserva.getEstado();
+
         stockClient.aumentarStock(reserva.getVideojuegoId());
 
         reserva.setEstado("CANCELADA");
 
         reservaRepository.save(reserva);
+
+        registrarHistorial(
+                reserva,
+                estadoAnterior,
+                "CANCELADA",
+                "Reserva eliminada mediante borrado lógico"
+        );
 
         log.info("Reserva eliminada/cancelada correctamente con ID: {}", id);
     }
@@ -325,6 +364,46 @@ public class ReservaServiceImpl implements ReservaService {
                 reserva.getVideojuegoId(),
                 reserva.getFechaReserva(),
                 reserva.getEstado()
+        );
+    }
+
+    private void registrarHistorial(ReservaModel reserva, String estadoAnterior, String estadoNuevo, String motivo) {
+
+        HistorialReservaModel historial = new HistorialReservaModel();
+        historial.setReserva(reserva);
+        historial.setEstadoAnterior(estadoAnterior);
+        historial.setEstadoNuevo(estadoNuevo);
+        historial.setFechaCambio(LocalDate.now());
+        historial.setMotivo(motivo);
+
+        historialReservaRepository.save(historial);
+    }
+
+    @Override
+    public List<HistorialReservaResponseDTO> listarHistorialPorReserva(Long reservaId) {
+
+        reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Reserva no encontrada"));
+
+        List<HistorialReservaModel> historial = historialReservaRepository.findByReservaId(reservaId);
+        List<HistorialReservaResponseDTO> respuesta = new ArrayList<>();
+
+        for (HistorialReservaModel registro : historial) {
+            respuesta.add(convertirHistorialAResponseDTO(registro));
+        }
+
+        return respuesta;
+    }
+
+    private HistorialReservaResponseDTO convertirHistorialAResponseDTO(HistorialReservaModel historial) {
+
+        return new HistorialReservaResponseDTO(
+                historial.getId(),
+                historial.getReserva().getId(),
+                historial.getEstadoAnterior(),
+                historial.getEstadoNuevo(),
+                historial.getFechaCambio(),
+                historial.getMotivo()
         );
     }
 }
