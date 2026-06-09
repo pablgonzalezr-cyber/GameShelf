@@ -16,6 +16,7 @@ public class PrestamoRequestDTO {
     
     private LocalDate fechaPrestamo;
 
+    @NotNull(message = "La fecha de devolución es obligatoria")
     private LocalDate fechaDevolucion;
 
     private String estado;

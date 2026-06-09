@@ -42,6 +42,7 @@ public class PrestamoModel {
     @Column(nullable = false)
     private LocalDate fechaPrestamo;
 
+    @Column(nullable = false)
     private LocalDate fechaDevolucion;
 
     @Column(nullable = false, length = 20)

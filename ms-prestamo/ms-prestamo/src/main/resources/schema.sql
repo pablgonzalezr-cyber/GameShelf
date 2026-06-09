@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS prestamos (
     usuario_id BIGINT NOT NULL,
     videojuego_id BIGINT NOT NULL,
     fecha_prestamo DATE NOT NULL,
-    fecha_devolucion DATE,
+    fecha_devolucion DATE NOT NULL,
     estado VARCHAR(20) NOT NULL
 );
 
