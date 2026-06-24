@@ -18,6 +18,20 @@ spring:
       hibernate:
         format_sql: true
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+  packages-to-scan: GameShelf.ms_autorizacion.controller
+  paths-to-match: /api/**
+
 eureka:
   client:
     service-url:

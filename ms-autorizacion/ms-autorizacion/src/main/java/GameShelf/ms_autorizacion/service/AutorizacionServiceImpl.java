@@ -225,7 +225,7 @@ public class AutorizacionServiceImpl implements AutorizacionService {
                 moduloLimpio.equals("SISTEMA");
 
         if (!valido) {
-            throw new DatoInvalidoException("El módulo debe ser CATALOGO, PRESTAMOS, RESERVAS, MULTAS o ADMINISTRADOR");
+            throw new DatoInvalidoException("El módulo debe ser CATALOGO, PRESTAMOS, RESERVAS, MULTAS o SISTEMA");
         }
     }
 
@@ -239,6 +239,7 @@ public class AutorizacionServiceImpl implements AutorizacionService {
 
         boolean valido =
                 permisoLimpio.equals("TOTAL") ||
+                permisoLimpio.equals("ADMIN") ||
                 permisoLimpio.equals("VER_CATALOGO") ||
                 permisoLimpio.equals("GESTIONAR_MULTAS") ||
                 permisoLimpio.equals("GESTIONAR_RESERVAS") ||
@@ -246,7 +247,7 @@ public class AutorizacionServiceImpl implements AutorizacionService {
                 permisoLimpio.equals("TESTEADOR");
 
         if (!valido) {
-            throw new DatoInvalidoException("El permiso debe ser TOTAL, VER_CATALOGO, GESTIONAR_MULTAS, ADMINISTRADOR o TESTEADOR");
+            throw new DatoInvalidoException("El permiso debe ser TOTAL, ADMIN, VER_CATALOGO, GESTIONAR_MULTAS, ADMINISTRADOR o TESTEADOR");
         }
     }
 
