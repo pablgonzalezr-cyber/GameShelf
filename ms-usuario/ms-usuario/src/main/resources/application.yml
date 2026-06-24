@@ -29,3 +29,17 @@ feign:
       default:
         connectTimeout: 3000
         readTimeout: 3000
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+  packages-to-scan: GameShelf.ms_usuario.controller
+  paths-to-match: /api/**
