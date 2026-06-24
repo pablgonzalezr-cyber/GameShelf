@@ -147,7 +147,7 @@ public class RolServiceImpl implements RolService {
             respuesta.add(convertirAResponseDTO(rol));
         }
 
-        log.info("Roles encontrados con bÃºsqueda {}: {}", nombre, respuesta.size());
+        log.info("Roles encontrados con búsqueda {}: {}", nombre, respuesta.size());
 
         return respuesta;
     }
