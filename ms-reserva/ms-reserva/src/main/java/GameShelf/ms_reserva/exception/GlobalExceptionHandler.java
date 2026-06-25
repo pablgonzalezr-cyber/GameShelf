@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 "No encontrado"
         );
+
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -32,6 +33,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 "Dato inválido"
         );
+
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -43,6 +45,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 "Dato duplicado"
         );
+
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -56,6 +59,7 @@ public class GlobalExceptionHandler {
                 mensaje,
                 "Validación"
         );
+
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -67,6 +71,7 @@ public class GlobalExceptionHandler {
                 "No se encontró información en otro microservicio",
                 "Error de comunicación"
         );
+
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -74,11 +79,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> manejarFeign(FeignException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
                 "Error al comunicarse con otro microservicio",
                 "Error de comunicación"
         );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(Exception.class)
@@ -89,6 +95,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 "Error interno"
         );
+
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

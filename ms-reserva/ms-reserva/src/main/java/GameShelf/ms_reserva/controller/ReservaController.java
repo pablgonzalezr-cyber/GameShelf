@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import GameShelf.ms_reserva.dto.ErrorResponseDTO;
 import GameShelf.ms_reserva.dto.HistorialReservaResponseDTO;
 import GameShelf.ms_reserva.dto.ReservaRequestDTO;
 import GameShelf.ms_reserva.dto.ReservaResponseDTO;
@@ -54,7 +55,11 @@ public class ReservaController {
                     description = "Lista de reservas obtenida correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReservaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping
     public ResponseEntity<List<ReservaResponseDTO>> listarReservas() {
@@ -74,8 +79,16 @@ public class ReservaController {
                     description = "Reserva encontrada correctamente",
                     content = @Content(schema = @Schema(implementation = ReservaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reserva no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping("/{id}")
     public ResponseEntity<ReservaResponseDTO> buscarReservaPorId(
@@ -89,7 +102,7 @@ public class ReservaController {
 
     @Operation(
             summary = "Buscar reservas por usuario",
-            description = "Obtiene todas las reservas asociadas a un usuario específico."
+            description = "Obtiene todas las reservas asociadas a un usuario específico. Valida la existencia y estado del usuario mediante ms-usuario."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -97,7 +110,26 @@ public class ReservaController {
                     description = "Reservas del usuario obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReservaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Usuario inválido o usuario inactivo",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado en ms-usuario",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-usuario",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<ReservaResponseDTO>> buscarReservasPorUsuario(
@@ -111,7 +143,7 @@ public class ReservaController {
 
     @Operation(
             summary = "Buscar reservas por videojuego",
-            description = "Obtiene todas las reservas asociadas a un videojuego específico."
+            description = "Obtiene todas las reservas asociadas a un videojuego específico. Valida el videojuego mediante ms-videojuego."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -119,7 +151,26 @@ public class ReservaController {
                     description = "Reservas del videojuego obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReservaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Videojuego inválido o no disponible",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Videojuego no encontrado en ms-videojuego",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-videojuego",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping("/videojuego/{videojuegoId}")
     public ResponseEntity<List<ReservaResponseDTO>> buscarReservasPorVideojuego(
@@ -133,7 +184,7 @@ public class ReservaController {
 
     @Operation(
             summary = "Buscar reservas por estado",
-            description = "Obtiene reservas filtradas por estado. Estados esperados: PENDIENTE, CONFIRMADA o CANCELADA."
+            description = "Obtiene reservas filtradas por estado. Estados válidos: PENDIENTE, CONFIRMADA, CANCELADA o EXPIRADA."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -141,12 +192,24 @@ public class ReservaController {
                     description = "Reservas filtradas por estado obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ReservaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "400", description = "Estado inválido"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Estado inválido. Los valores permitidos son PENDIENTE, CONFIRMADA, CANCELADA o EXPIRADA",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<ReservaResponseDTO>> buscarReservasPorEstado(
-            @Parameter(description = "Estado de la reserva", example = "PENDIENTE", required = true)
+            @Parameter(
+                    description = "Estado de la reserva",
+                    example = "PENDIENTE",
+                    required = true
+            )
             @PathVariable String estado) {
 
         log.info("Petición GET para buscar reservas por estado: {}", estado);
@@ -155,8 +218,8 @@ public class ReservaController {
     }
 
     @Operation(
-            summary = "Crear una reserva",
-            description = "Crea una reserva validando usuario, videojuego y stock disponible mediante comunicación con otros microservicios."
+            summary = "Crear reserva",
+            description = "Crea una reserva validando usuario, videojuego y stock disponible mediante ms-usuario, ms-videojuego y ms-stock. Al crear la reserva, el sistema asigna fecha actual y estado PENDIENTE."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -164,9 +227,26 @@ public class ReservaController {
                     description = "Reserva creada correctamente",
                     content = @Content(schema = @Schema(implementation = ReservaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos o videojuego no disponible"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con ms-usuario, ms-videojuego o ms-stock"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, usuario inactivo, videojuego no disponible, stock insuficiente o reserva duplicada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario, videojuego o stock no encontrado en otro microservicio",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-usuario, ms-videojuego o ms-stock",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PostMapping
     public ResponseEntity<ReservaResponseDTO> crearReserva(
@@ -180,9 +260,7 @@ public class ReservaController {
                                     value = """
                                             {
                                               "usuarioId": 1,
-                                              "videojuegoId": 2,
-                                              "fechaReserva": "2026-06-24",
-                                              "estado": "PENDIENTE"
+                                              "videojuegoId": 2
                                             }
                                             """
                             )
@@ -198,8 +276,8 @@ public class ReservaController {
     }
 
     @Operation(
-            summary = "Actualizar una reserva",
-            description = "Actualiza los datos de una reserva existente, validando usuario, videojuego, fecha y estado."
+            summary = "Actualizar reserva",
+            description = "Actualiza una reserva existente. No permite cambiar el usuario ni el videojuego; solo permite actualizar el estado si corresponde."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -207,10 +285,26 @@ public class ReservaController {
                     description = "Reserva actualizada correctamente",
                     content = @Content(schema = @Schema(implementation = ReservaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
-            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con otro microservicio"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, intento de cambiar usuario/videojuego o estado inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reserva, usuario o videojuego no encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-usuario o ms-videojuego",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PutMapping("/{id}")
     public ResponseEntity<ReservaResponseDTO> actualizarReserva(
@@ -227,8 +321,7 @@ public class ReservaController {
                                             {
                                               "usuarioId": 1,
                                               "videojuegoId": 2,
-                                              "fechaReserva": "2026-06-25",
-                                              "estado": "PENDIENTE"
+                                              "estado": "CONFIRMADA"
                                             }
                                             """
                             )
@@ -243,7 +336,7 @@ public class ReservaController {
 
     @Operation(
             summary = "Confirmar reserva",
-            description = "Cambia el estado de la reserva a CONFIRMADA y registra el cambio en el historial de reserva."
+            description = "Cambia el estado de una reserva PENDIENTE a CONFIRMADA y registra el cambio en el historial."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -251,9 +344,21 @@ public class ReservaController {
                     description = "Reserva confirmada correctamente",
                     content = @Content(schema = @Schema(implementation = ReservaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "La reserva no puede confirmarse por su estado actual"),
-            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "La reserva no puede confirmarse porque no está en estado PENDIENTE",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reserva no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PutMapping("/confirmar/{id}")
     public ResponseEntity<ReservaResponseDTO> confirmarReserva(
@@ -267,7 +372,7 @@ public class ReservaController {
 
     @Operation(
             summary = "Cancelar reserva",
-            description = "Cambia el estado de la reserva a CANCELADA y registra el cambio en el historial de reserva."
+            description = "Cambia el estado de la reserva a CANCELADA, aumenta el stock del videojuego mediante ms-stock y registra el cambio en el historial."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -275,9 +380,26 @@ public class ReservaController {
                     description = "Reserva cancelada correctamente",
                     content = @Content(schema = @Schema(implementation = ReservaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "La reserva no puede cancelarse por su estado actual"),
-            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "La reserva ya está cancelada o se encuentra expirada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reserva no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-stock",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @PutMapping("/cancelar/{id}")
     public ResponseEntity<ReservaResponseDTO> cancelarReserva(
@@ -291,7 +413,7 @@ public class ReservaController {
 
     @Operation(
             summary = "Listar historial de una reserva",
-            description = "Obtiene el historial de cambios de estado de una reserva específica. Este historial se genera mediante una relación JPA interna entre ReservaModel e HistorialReservaModel."
+            description = "Obtiene el historial de cambios de estado de una reserva específica."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -299,8 +421,16 @@ public class ReservaController {
                     description = "Historial de reserva obtenido correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistorialReservaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reserva no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @GetMapping("/{id}/historial")
     public ResponseEntity<List<HistorialReservaResponseDTO>> listarHistorialPorReserva(
@@ -314,12 +444,34 @@ public class ReservaController {
 
     @Operation(
             summary = "Eliminar reserva",
-            description = "Elimina o cancela una reserva según la lógica del servicio. En la respuesta exitosa no retorna contenido."
+            description = "Realiza un borrado lógico de la reserva cambiando su estado a CANCELADA. También aumenta el stock del videojuego mediante ms-stock."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Reserva eliminada correctamente"),
-            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Reserva eliminada lógicamente correctamente",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "La reserva ya está cancelada o se encuentra expirada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Reserva no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-stock",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarReserva(
