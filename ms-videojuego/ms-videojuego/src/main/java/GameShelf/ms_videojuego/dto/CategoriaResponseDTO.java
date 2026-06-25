@@ -11,15 +11,19 @@ import lombok.NoArgsConstructor;
 @Schema(description = "DTO utilizado para recibir información de categorías desde ms-categoria")
 public class CategoriaResponseDTO {
 
-    @Schema(description = "ID de la categoría", example = "1")
+    @Schema(description = "ID único de la categoría", example = "1")
     private Long id;
 
-    @Schema(description = "Nombre de la categoría", example = "AVENTURA")
+    @Schema(description = "Nombre de la categoría recibida desde ms-categoria", example = "AVENTURA")
     private String nombre;
 
-    @Schema(description = "Descripción de la categoría", example = "Videojuegos de aventura y exploración")
+    @Schema(description = "Descripción de la categoría recibida desde ms-categoria", example = "Videojuegos de aventura y exploración")
     private String descripcion;
 
-    @Schema(description = "Estado de la categoría", example = "ACTIVO")
+    @Schema(
+            description = "Estado de la categoría recibida desde ms-categoria",
+            example = "ACTIVO",
+            allowableValues = {"ACTIVO", "INACTIVO"}
+    )
     private String estado;
 }
