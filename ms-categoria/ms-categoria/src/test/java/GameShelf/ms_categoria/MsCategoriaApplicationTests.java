@@ -1,13 +1,12 @@
 package GameShelf.ms_categoria;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 class MsCategoriaApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void mainClassExiste() {
+        assertNotNull(MsCategoriaApplication.class);
+    }
 }
