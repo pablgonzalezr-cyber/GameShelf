@@ -1,11 +1,11 @@
 package GameShelf.ms_notificacion.dto;
 
+import java.time.LocalDateTime;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -13,22 +13,30 @@ import java.time.LocalDateTime;
 @Schema(description = "DTO de respuesta con los datos de una notificación")
 public class NotificacionResponseDTO {
 
-    @Schema(description = "ID de la notificación", example = "1")
+    @Schema(description = "ID único de la notificación", example = "1")
     private Long id;
 
     @Schema(description = "ID del usuario asociado a la notificación", example = "1")
     private Long usuarioId;
 
-    @Schema(description = "Título de la notificación", example = "Reserva creada")
+    @Schema(description = "Título breve de la notificación", example = "Reserva creada")
     private String titulo;
 
-    @Schema(description = "Mensaje de la notificación", example = "Tu reserva fue creada correctamente")
+    @Schema(description = "Mensaje detallado de la notificación", example = "Tu reserva fue creada correctamente")
     private String mensaje;
 
-    @Schema(description = "Tipo de notificación", example = "RESERVA")
+    @Schema(
+            description = "Tipo de notificación",
+            example = "RESERVA",
+            allowableValues = {"RESERVA", "PRESTAMO", "MULTA", "SISTEMA"}
+    )
     private String tipo;
 
-    @Schema(description = "Estado de la notificación", example = "PENDIENTE")
+    @Schema(
+            description = "Estado actual de la notificación",
+            example = "PENDIENTE",
+            allowableValues = {"PENDIENTE", "LEIDA", "ELIMINADA"}
+    )
     private String estado;
 
     @Schema(description = "Fecha y hora en que se creó la notificación", example = "2026-06-24T15:30:00")
@@ -40,6 +48,10 @@ public class NotificacionResponseDTO {
     @Schema(description = "ID de referencia asociado a otra entidad del sistema", example = "10")
     private Long referenciaId;
 
-    @Schema(description = "Tipo de referencia asociada a la notificación", example = "RESERVA")
+    @Schema(
+            description = "Tipo de referencia asociada a la notificación",
+            example = "RESERVA",
+            allowableValues = {"RESERVA", "PRESTAMO", "MULTA", "SISTEMA"}
+    )
     private String referenciaTipo;
 }
