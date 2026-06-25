@@ -16,7 +16,7 @@
     <modules>
         <module>eureka-Server/eureka-Server</module>
         <module>api-gateway/api-gateway</module>
-
+        
         <module>ms-usuario/ms-usuario</module>
         <module>ms-roles/ms-roles</module>
         <module>ms-categoria/ms-categoria</module>
