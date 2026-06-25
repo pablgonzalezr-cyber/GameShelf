@@ -1,20 +1,33 @@
 package GameShelf.ms_roles.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import GameShelf.ms_roles.dto.RolRequestDTO;
 import GameShelf.ms_roles.dto.RolResponseDTO;
 import GameShelf.ms_roles.service.RolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Tag(
@@ -35,6 +48,23 @@ public class RolController {
             summary = "Crear rol",
             description = "Registra un nuevo rol en el sistema. Valida que el nombre no esté duplicado y asigna estado ACTIVO si no se envía estado."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Rol creado correctamente",
+                    content = @Content(schema = @Schema(implementation = RolResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, validación fallida, estado incorrecto o rol duplicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @PostMapping
     public ResponseEntity<RolResponseDTO> crearRol(
             @Valid @RequestBody RolRequestDTO rolRequestDTO) {
@@ -50,6 +80,18 @@ public class RolController {
             summary = "Listar roles",
             description = "Obtiene todos los roles registrados en el sistema."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Roles listados correctamente",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = RolResponseDTO.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @GetMapping
     public ResponseEntity<List<RolResponseDTO>> listarRoles() {
 
@@ -62,6 +104,23 @@ public class RolController {
             summary = "Buscar rol por ID",
             description = "Obtiene un rol específico mediante su identificador."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Rol encontrado correctamente",
+                    content = @Content(schema = @Schema(implementation = RolResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Rol no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @GetMapping("/{id}")
     public ResponseEntity<RolResponseDTO> buscarPorId(
             @Parameter(description = "ID del rol", example = "1")
@@ -76,6 +135,28 @@ public class RolController {
             summary = "Actualizar rol",
             description = "Actualiza los datos de un rol existente, incluyendo nombre, descripción y estado."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Rol actualizado correctamente",
+                    content = @Content(schema = @Schema(implementation = RolResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, validación fallida, estado incorrecto o nombre de rol duplicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Rol no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @PutMapping("/{id}")
     public ResponseEntity<RolResponseDTO> actualizarRol(
             @Parameter(description = "ID del rol", example = "1")
@@ -93,6 +174,23 @@ public class RolController {
             summary = "Desactivar rol",
             description = "Realiza un borrado lógico del rol, cambiando su estado a INACTIVO."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Rol desactivado correctamente",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Rol no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> eliminarRol(
             @Parameter(description = "ID del rol", example = "1")
@@ -112,6 +210,23 @@ public class RolController {
             summary = "Buscar roles por estado",
             description = "Obtiene roles filtrados por estado. Estados permitidos: ACTIVO o INACTIVO."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Roles encontrados correctamente por estado",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = RolResponseDTO.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Estado inválido. Los valores permitidos son ACTIVO o INACTIVO",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<RolResponseDTO>> buscarPorEstado(
             @Parameter(description = "Estado del rol", example = "ACTIVO")
@@ -126,6 +241,18 @@ public class RolController {
             summary = "Buscar roles por nombre",
             description = "Busca roles cuyo nombre contenga el texto ingresado."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Roles encontrados correctamente por coincidencia de nombre",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = RolResponseDTO.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @GetMapping("/buscar/{nombre}")
     public ResponseEntity<List<RolResponseDTO>> buscarPorNombre(
             @Parameter(description = "Texto o nombre de rol a buscar", example = "admin")
@@ -140,6 +267,23 @@ public class RolController {
             summary = "Buscar rol por nombre exacto",
             description = "Busca un rol específico usando el nombre exacto del rol."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Rol encontrado correctamente por nombre exacto",
+                    content = @Content(schema = @Schema(implementation = RolResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Rol no encontrado con el nombre indicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @GetMapping("/nombre/{nombre}")
     public ResponseEntity<RolResponseDTO> buscarPorNombreExacto(
             @Parameter(description = "Nombre exacto del rol", example = "ADMINISTRADOR")
@@ -154,6 +298,18 @@ public class RolController {
             summary = "Validar rol activo",
             description = "Valida si un rol existe y se encuentra en estado ACTIVO. Este endpoint es usado por otros microservicios como ms-usuario y ms-autorizacion."
     )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Validación ejecutada correctamente. Retorna true si el rol existe y está activo, o false en caso contrario",
+                    content = @Content(schema = @Schema(implementation = Boolean.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
+    })
     @GetMapping("/validar/{nombre}")
     public ResponseEntity<Boolean> validarRol(
             @Parameter(description = "Nombre del rol a validar", example = "CLIENTE")

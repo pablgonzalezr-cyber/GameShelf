@@ -34,6 +34,6 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-    packages-to-scan: GameShelf.ms_roles.controller
-    paths-to-match: /api/**
+  packages-to-scan: GameShelf.ms_roles.controller
+  paths-to-match: /api/**
  
