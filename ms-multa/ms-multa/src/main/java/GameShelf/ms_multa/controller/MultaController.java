@@ -1,6 +1,8 @@
 package GameShelf.ms_multa.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +48,8 @@ public class MultaController {
     }
 
     @Operation(
-            summary = "Crear una multa",
-            description = "Crea una multa asociada a un usuario y a un préstamo. Valida que el usuario exista, que el préstamo exista y que el préstamo pertenezca al usuario indicado."
+            summary = "Crear multa",
+            description = "Crea una multa asociada a un usuario y a un préstamo. Valida que el usuario exista, que el préstamo exista y que el préstamo pertenezca al usuario indicado. Al crear, el sistema asigna fecha actual y estado PENDIENTE."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,9 +57,21 @@ public class MultaController {
                     description = "Multa creada correctamente",
                     content = @Content(schema = @Schema(implementation = MultaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos, préstamo no pertenece al usuario o ya existe una multa pendiente"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con ms-usuario o ms-prestamo"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, usuario inactivo, préstamo inexistente, préstamo no pertenece al usuario o ya existe una multa pendiente",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-usuario o ms-prestamo",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PostMapping
     public ResponseEntity<MultaResponseDTO> crearMulta(
@@ -73,8 +87,7 @@ public class MultaController {
                                               "usuarioId": 1,
                                               "prestamoId": 1,
                                               "monto": 5000,
-                                              "motivo": "Atraso en la devolución del videojuego",
-                                              "estado": "PENDIENTE"
+                                              "motivo": "Atraso en la devolución del videojuego"
                                             }
                                             """
                             )
@@ -99,7 +112,11 @@ public class MultaController {
                     description = "Lista de multas obtenida correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = MultaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping
     public ResponseEntity<List<MultaResponseDTO>> listarMultas() {
@@ -119,8 +136,16 @@ public class MultaController {
                     description = "Multa encontrada correctamente",
                     content = @Content(schema = @Schema(implementation = MultaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/{id}")
     public ResponseEntity<MultaResponseDTO> buscarPorId(
@@ -142,7 +167,11 @@ public class MultaController {
                     description = "Multas del usuario obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = MultaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<MultaResponseDTO>> buscarPorUsuario(
@@ -164,7 +193,11 @@ public class MultaController {
                     description = "Multas del préstamo obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = MultaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/prestamo/{prestamoId}")
     public ResponseEntity<List<MultaResponseDTO>> buscarPorPrestamo(
@@ -186,8 +219,16 @@ public class MultaController {
                     description = "Multas filtradas por estado obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = MultaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "400", description = "Estado inválido"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Estado inválido. Los valores permitidos son PENDIENTE, PAGADA o ANULADA",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<MultaResponseDTO>> buscarPorEstado(
@@ -200,7 +241,7 @@ public class MultaController {
     }
 
     @Operation(
-            summary = "Actualizar una multa",
+            summary = "Actualizar multa",
             description = "Actualiza los datos de una multa existente, validando usuario, préstamo, monto, motivo y estado."
     )
     @ApiResponses(value = {
@@ -209,10 +250,26 @@ public class MultaController {
                     description = "Multa actualizada correctamente",
                     content = @Content(schema = @Schema(implementation = MultaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con otro microservicio"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, préstamo no pertenece al usuario o estado inválido",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-usuario o ms-prestamo",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/{id}")
     public ResponseEntity<MultaResponseDTO> actualizarMulta(
@@ -254,9 +311,21 @@ public class MultaController {
                     description = "Multa marcada como pagada correctamente",
                     content = @Content(schema = @Schema(implementation = MultaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Solo se pueden pagar multas pendientes"),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Solo se pueden pagar multas pendientes",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/pagar/{id}")
     public ResponseEntity<MultaResponseDTO> pagarMulta(
@@ -269,7 +338,7 @@ public class MultaController {
     }
 
     @Operation(
-            summary = "Anular una multa",
+            summary = "Anular multa",
             description = "Cambia el estado de una multa a ANULADA. No se puede anular una multa que ya está pagada."
     )
     @ApiResponses(value = {
@@ -278,9 +347,21 @@ public class MultaController {
                     description = "Multa anulada correctamente",
                     content = @Content(schema = @Schema(implementation = MultaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "No se puede anular una multa pagada"),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "No se puede anular una multa pagada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/anular/{id}")
     public ResponseEntity<MultaResponseDTO> anularMulta(
@@ -302,9 +383,21 @@ public class MultaController {
                     description = "Pago registrado correctamente",
                     content = @Content(schema = @Schema(implementation = PagoMultaResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Monto incorrecto, multa anulada o multa ya pagada"),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Monto incorrecto, método de pago inválido, multa anulada o multa ya pagada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PostMapping("/{id}/pagos")
     public ResponseEntity<PagoMultaResponseDTO> registrarPago(
@@ -345,8 +438,16 @@ public class MultaController {
                     description = "Pagos de la multa obtenidos correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PagoMultaResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/{id}/pagos")
     public ResponseEntity<List<PagoMultaResponseDTO>> listarPagosPorMulta(
@@ -363,12 +464,24 @@ public class MultaController {
             description = "Elimina una multa del sistema. En la implementación actual corresponde a eliminación física del registro."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Multa eliminada correctamente"),
-            @ApiResponse(responseCode = "404", description = "Multa no encontrada"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Multa eliminada correctamente",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Multa no encontrada",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarMulta(
+    public ResponseEntity<Map<String, String>> eliminarMulta(
             @Parameter(description = "ID de la multa a eliminar", example = "1", required = true)
             @PathVariable Long id) {
 
@@ -376,6 +489,9 @@ public class MultaController {
 
         multaService.eliminarMulta(id);
 
-        return ResponseEntity.ok("Multa eliminada correctamente");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Multa eliminada correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 }
