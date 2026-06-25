@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>GameShelf</groupId>
+    <artifactId>gameshelf-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>GameShelf Microservices Parent</name>
+    <description>Proyecto Maven multi-módulo para el sistema de microservicios GameShelf</description>
+
+    <modules>
+        <module>eureka-Server/eureka-Server</module>
+        <module>api-gateway/api-gateway</module>
+
+        <module>ms-usuario/ms-usuario</module>
+        <module>ms-roles/ms-roles</module>
+        <module>ms-categoria/ms-categoria</module>
+        <module>ms-videojuego/ms-videojuego</module>
+        <module>ms-stock</module>
+        <module>ms-prestamo/ms-prestamo</module>
+        <module>ms-reserva/ms-reserva</module>
+        <module>ms-multa/ms-multa</module>
+        <module>ms-notificacion/ms-notificacion</module>
+        <module>ms-autorizacion/ms-autorizacion</module>
+    </modules>
+
+</project>
