@@ -1,6 +1,8 @@
 package GameShelf.ms_stock.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,9 +55,21 @@ public class StockController {
                     description = "Stock creado correctamente",
                     content = @Content(schema = @Schema(implementation = StockResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos, videojuego no disponible o stock duplicado para el videojuego"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con ms-videojuego"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, videojuego no disponible, cantidades inconsistentes o stock duplicado para el videojuego",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-videojuego",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PostMapping
     public ResponseEntity<StockResponseDTO> crearStock(
@@ -96,7 +110,11 @@ public class StockController {
                     description = "Lista de stocks obtenida correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = StockResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping
     public ResponseEntity<List<StockResponseDTO>> listarStocks() {
@@ -116,8 +134,16 @@ public class StockController {
                     description = "Stock encontrado correctamente",
                     content = @Content(schema = @Schema(implementation = StockResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Stock no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Stock no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/{id}")
     public ResponseEntity<StockResponseDTO> buscarStock(
@@ -139,8 +165,16 @@ public class StockController {
                     description = "Stock del videojuego obtenido correctamente",
                     content = @Content(schema = @Schema(implementation = StockResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "404", description = "No existe stock para el videojuego indicado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe stock para el videojuego indicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/videojuego/{videojuegoId}")
     public ResponseEntity<StockResponseDTO> buscarPorVideojuego(
@@ -162,10 +196,26 @@ public class StockController {
                     description = "Stock actualizado correctamente",
                     content = @Content(schema = @Schema(implementation = StockResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos, estado incorrecto o cantidades inconsistentes"),
-            @ApiResponse(responseCode = "404", description = "Stock no encontrado"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con ms-videojuego"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, estado incorrecto, cantidades inconsistentes, videojuego no disponible o stock duplicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Stock no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-videojuego",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/{id}")
     public ResponseEntity<StockResponseDTO> actualizarStock(
@@ -206,9 +256,21 @@ public class StockController {
                     description = "Stock reducido correctamente",
                     content = @Content(schema = @Schema(implementation = StockResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Stock inactivo o sin copias disponibles"),
-            @ApiResponse(responseCode = "404", description = "No existe stock para el videojuego indicado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Stock inactivo o sin copias disponibles",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe stock para el videojuego indicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/reducir/{videojuegoId}")
     public ResponseEntity<StockResponseDTO> reducirStock(
@@ -230,9 +292,21 @@ public class StockController {
                     description = "Stock aumentado correctamente",
                     content = @Content(schema = @Schema(implementation = StockResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Stock inactivo o cantidad disponible igual a cantidad total"),
-            @ApiResponse(responseCode = "404", description = "No existe stock para el videojuego indicado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Stock inactivo o cantidad disponible igual a cantidad total",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe stock para el videojuego indicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/aumentar/{videojuegoId}")
     public ResponseEntity<StockResponseDTO> aumentarStock(
@@ -254,8 +328,16 @@ public class StockController {
                     description = "Stocks filtrados por estado obtenidos correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = StockResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "400", description = "Estado inválido"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Estado inválido. Los valores permitidos son ACTIVO o INACTIVO",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<StockResponseDTO>> listarPorEstado(
@@ -272,12 +354,24 @@ public class StockController {
             description = "Realiza borrado lógico del stock cambiando su estado a INACTIVO."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Stock desactivado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Stock no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Stock desactivado correctamente",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Stock no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarStock(
+    public ResponseEntity<Map<String, String>> eliminarStock(
             @Parameter(description = "ID del stock a desactivar", example = "1", required = true)
             @PathVariable Long id) {
 
@@ -285,6 +379,9 @@ public class StockController {
 
         stockService.eliminarStock(id);
 
-        return ResponseEntity.ok("Stock desactivado correctamente");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Stock desactivado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 }
