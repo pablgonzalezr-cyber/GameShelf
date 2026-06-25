@@ -247,7 +247,7 @@ public class AutorizacionServiceImpl implements AutorizacionService {
                 permisoLimpio.equals("TESTEADOR");
 
         if (!valido) {
-            throw new DatoInvalidoException("El permiso debe ser TOTAL, ADMIN, VER_CATALOGO, GESTIONAR_MULTAS, ADMINISTRADOR o TESTEADOR");
+            throw new DatoInvalidoException("El permiso debe ser TOTAL, ADMIN, VER_CATALOGO, GESTIONAR_MULTAS, GESTIONAR_RESERVAS, GESTIONAR_PRESTAMOS o TESTEADOR");
         }
     }
 

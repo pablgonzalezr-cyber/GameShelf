@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "DTO de respuesta con los datos de una autorización")
 public class AutorizacionResponseDTO {
 
-    @Schema(description = "ID de la autorización", example = "1")
+    @Schema(description = "ID único de la autorización", example = "1")
     private Long id;
 
     @Schema(description = "ID del usuario autorizado", example = "1")
@@ -20,12 +20,32 @@ public class AutorizacionResponseDTO {
     @Schema(description = "Rol asociado al usuario", example = "ADMINISTRADOR")
     private String rol;
 
-    @Schema(description = "Módulo autorizado", example = "PRESTAMOS")
+    @Schema(
+            description = "Módulo autorizado",
+            example = "PRESTAMOS",
+            allowableValues = {"CATALOGO", "PRESTAMOS", "RESERVAS", "MULTAS", "SISTEMA"}
+    )
     private String modulo;
 
-    @Schema(description = "Permiso asignado", example = "GESTIONAR_PRESTAMOS")
+    @Schema(
+            description = "Permiso asignado sobre el módulo",
+            example = "GESTIONAR_PRESTAMOS",
+            allowableValues = {
+                    "TOTAL",
+                    "ADMIN",
+                    "VER_CATALOGO",
+                    "GESTIONAR_MULTAS",
+                    "GESTIONAR_RESERVAS",
+                    "GESTIONAR_PRESTAMOS",
+                    "TESTEADOR"
+            }
+    )
     private String permiso;
 
-    @Schema(description = "Estado de la autorización", example = "ACTIVO")
+    @Schema(
+            description = "Estado actual de la autorización",
+            example = "ACTIVO",
+            allowableValues = {"ACTIVO", "INACTIVO"}
+    )
     private String estado;
 }

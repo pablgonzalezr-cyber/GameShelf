@@ -10,14 +10,36 @@ import lombok.Data;
 public class ValidarAutorizacionRequestDTO {
 
     @NotNull(message = "El usuario es obligatorio")
-    @Schema(description = "ID del usuario que se desea validar", example = "1")
+    @Schema(
+            description = "ID del usuario que se desea validar",
+            example = "1",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private Long usuarioId;
 
     @NotBlank(message = "El módulo es obligatorio")
-    @Schema(description = "Módulo que se desea validar", example = "PRESTAMOS")
+    @Schema(
+            description = "Módulo que se desea validar",
+            example = "PRESTAMOS",
+            allowableValues = {"CATALOGO", "PRESTAMOS", "RESERVAS", "MULTAS", "SISTEMA"},
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String modulo;
 
     @NotBlank(message = "El permiso es obligatorio")
-    @Schema(description = "Permiso que se desea validar", example = "GESTIONAR_PRESTAMOS")
+    @Schema(
+            description = "Permiso que se desea validar sobre el módulo indicado",
+            example = "GESTIONAR_PRESTAMOS",
+            allowableValues = {
+                    "TOTAL",
+                    "ADMIN",
+                    "VER_CATALOGO",
+                    "GESTIONAR_MULTAS",
+                    "GESTIONAR_RESERVAS",
+                    "GESTIONAR_PRESTAMOS",
+                    "TESTEADOR"
+            },
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String permiso;
 }
