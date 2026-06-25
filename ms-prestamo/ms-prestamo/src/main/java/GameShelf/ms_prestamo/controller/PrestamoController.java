@@ -1,6 +1,8 @@
 package GameShelf.ms_prestamo.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +48,8 @@ public class PrestamoController {
     }
 
     @Operation(
-            summary = "Crear un préstamo",
-            description = "Crea un préstamo validando usuario, videojuego y stock disponible mediante comunicación con ms-usuario, ms-videojuego y ms-stock."
+            summary = "Crear préstamo",
+            description = "Crea un préstamo validando usuario, videojuego y stock disponible mediante comunicación con ms-usuario, ms-videojuego y ms-stock. Al crear el préstamo, reduce el stock disponible del videojuego."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,9 +57,21 @@ public class PrestamoController {
                     description = "Préstamo creado correctamente",
                     content = @Content(schema = @Schema(implementation = PrestamoResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos, videojuego no disponible o stock insuficiente"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con otro microservicio"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos inválidos, usuario inexistente, usuario inactivo, videojuego no disponible, stock insuficiente o préstamo duplicado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-usuario, ms-videojuego o ms-stock",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PostMapping
     public ResponseEntity<PrestamoResponseDTO> crearPrestamo(
@@ -97,7 +111,11 @@ public class PrestamoController {
                     description = "Lista de préstamos obtenida correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PrestamoResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping
     public ResponseEntity<List<PrestamoResponseDTO>> listarPrestamos() {
@@ -117,8 +135,16 @@ public class PrestamoController {
                     description = "Préstamo encontrado correctamente",
                     content = @Content(schema = @Schema(implementation = PrestamoResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Préstamo no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/{id}")
     public ResponseEntity<PrestamoResponseDTO> buscarPorId(
@@ -140,7 +166,11 @@ public class PrestamoController {
                     description = "Préstamos del usuario obtenidos correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PrestamoResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<PrestamoResponseDTO>> buscarPorUsuario(
@@ -162,7 +192,11 @@ public class PrestamoController {
                     description = "Préstamos del videojuego obtenidos correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PrestamoResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/videojuego/{videojuegoId}")
     public ResponseEntity<List<PrestamoResponseDTO>> buscarPorVideojuego(
@@ -184,8 +218,16 @@ public class PrestamoController {
                     description = "Préstamos filtrados por estado obtenidos correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = PrestamoResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "400", description = "Estado inválido"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Estado inválido. Los valores permitidos son PRESTADO, DEVUELTO o CANCELADO",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<PrestamoResponseDTO>> buscarPorEstado(
@@ -207,10 +249,26 @@ public class PrestamoController {
                     description = "Préstamo devuelto correctamente",
                     content = @Content(schema = @Schema(implementation = PrestamoResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "El préstamo no está activo o no puede devolverse"),
-            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con ms-stock"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "El préstamo no está activo o no puede devolverse",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Préstamo no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-stock",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PutMapping("/devolver/{id}")
     public ResponseEntity<PrestamoResponseDTO> devolverPrestamo(
@@ -224,16 +282,32 @@ public class PrestamoController {
 
     @Operation(
             summary = "Cancelar préstamo",
-            description = "Cancela un préstamo mediante borrado lógico cambiando su estado a CANCELADO. Si estaba PRESTADO, aumenta el stock del videojuego."
+            description = "Cancela un préstamo cambiando su estado a CANCELADO. Si estaba en estado PRESTADO, aumenta el stock del videojuego asociado mediante ms-stock."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Préstamo cancelado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado"),
-            @ApiResponse(responseCode = "503", description = "Error de comunicación con ms-stock"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Préstamo cancelado correctamente",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Préstamo no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Error de comunicación con ms-stock",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> cancelarPrestamo(
+    public ResponseEntity<Map<String, String>> cancelarPrestamo(
             @Parameter(description = "ID del préstamo a cancelar", example = "1", required = true)
             @PathVariable Long id) {
 
@@ -241,7 +315,10 @@ public class PrestamoController {
 
         prestamoService.cancelarPrestamo(id);
 
-        return ResponseEntity.ok("Préstamo cancelado correctamente");
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Préstamo cancelado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
     @Operation(
@@ -254,9 +331,21 @@ public class PrestamoController {
                     description = "Préstamo renovado correctamente",
                     content = @Content(schema = @Schema(implementation = RenovacionPrestamoResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "400", description = "Fecha inválida o préstamo no renovable"),
-            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Fecha inválida, motivo inválido o préstamo no renovable",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Préstamo no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @PostMapping("/{id}/renovaciones")
     public ResponseEntity<RenovacionPrestamoResponseDTO> renovarPrestamo(
@@ -297,8 +386,16 @@ public class PrestamoController {
                     description = "Renovaciones obtenidas correctamente",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = RenovacionPrestamoResponseDTO.class)))
             ),
-            @ApiResponse(responseCode = "404", description = "Préstamo no encontrado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Préstamo no encontrado",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor",
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            )
     })
     @GetMapping("/{id}/renovaciones")
     public ResponseEntity<List<RenovacionPrestamoResponseDTO>> listarRenovacionesPorPrestamo(

@@ -6,18 +6,28 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@Schema(description = "DTO de entrada para renovar un préstamo existente.")
+@Schema(description = "DTO de entrada para renovar un préstamo existente")
 public class RenovacionPrestamoRequestDTO {
 
     @NotNull(message = "La nueva fecha de devolución es obligatoria")
     @Future(message = "La nueva fecha de devolución debe ser futura")
-    @Schema(description = "Nueva fecha de devolución solicitada para el préstamo.", example = "2026-07-15", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(
+            description = "Nueva fecha de devolución solicitada para el préstamo. Debe ser posterior a la fecha de devolución actual",
+            example = "2026-07-15",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private LocalDate nuevaFechaDevolucion;
 
     @NotBlank(message = "El motivo de la renovación es obligatorio")
-    @Schema(description = "Motivo por el cual se solicita la renovación del préstamo.", example = "El usuario solicita más tiempo para devolver el videojuego", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 5, max = 250, message = "El motivo debe tener entre 5 y 250 caracteres")
+    @Schema(
+            description = "Motivo por el cual se solicita la renovación del préstamo",
+            example = "El usuario solicita más tiempo para devolver el videojuego",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String motivo;
 }

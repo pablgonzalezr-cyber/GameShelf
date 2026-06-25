@@ -25,8 +25,14 @@ eureka:
 
 springdoc:
   api-docs:
+    enabled: true
     path: /v3/api-docs
+
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
     operations-sorter: method
-    tags-sorter: alpha  
+    tags-sorter: alpha
+
+  packages-to-scan: GameShelf.ms_prestamo.controller
+  paths-to-match: /api/**
