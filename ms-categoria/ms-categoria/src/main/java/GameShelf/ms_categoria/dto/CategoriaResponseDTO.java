@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "DTO de respuesta con los datos de una categoría")
+@Schema(description = "DTO de respuesta con los datos de una categoría de videojuegos")
 public class CategoriaResponseDTO {
 
-    @Schema(description = "ID de la categoría", example = "1")
+    @Schema(description = "ID único de la categoría", example = "1")
     private Long id;
 
-    @Schema(description = "Nombre de la categoría", example = "AVENTURA")
+    @Schema(description = "Nombre de la categoría registrada", example = "AVENTURA")
     private String nombre;
 
-    @Schema(description = "Descripción de la categoría", example = "Videojuegos de aventura, exploración y misiones")
+    @Schema(description = "Descripción funcional de la categoría", example = "Videojuegos de aventura, exploración y misiones")
     private String descripcion;
 
-    @Schema(description = "Estado de la categoría", example = "ACTIVO")
+    @Schema(description = "Estado actual de la categoría", example = "ACTIVO", allowableValues = {"ACTIVO", "INACTIVO"})
     private String estado;
 }

@@ -11,15 +11,27 @@ public class RolRequestDTO {
 
     @NotBlank(message = "El nombre del rol es obligatorio")
     @Size(min = 3, max = 30, message = "El nombre del rol debe tener entre 3 y 30 caracteres")
-    @Schema(description = "Nombre del rol. El sistema lo guarda en mayúsculas", example = "CLIENTE")
+    @Schema(
+            description = "Nombre del rol. El sistema lo normaliza y guarda en mayúsculas",
+            example = "CLIENTE",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String nombre;
 
     @NotBlank(message = "La descripción del rol es obligatoria")
     @Size(min = 5, max = 150, message = "La descripción debe tener entre 5 y 150 caracteres")
-    @Schema(description = "Descripción del rol dentro del sistema", example = "Usuario cliente que puede reservar y solicitar préstamos")
+    @Schema(
+            description = "Descripción funcional del rol dentro del sistema",
+            example = "Usuario cliente que puede consultar videojuegos, generar reservas y solicitar préstamos",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String descripcion;
 
-    @Schema(description = "Estado del rol. Si no se envía, el sistema asigna ACTIVO por defecto", example = "ACTIVO")
+    @Schema(
+            description = "Estado del rol. Si no se envía, el sistema asigna ACTIVO por defecto",
+            example = "ACTIVO",
+            allowableValues = {"ACTIVO", "INACTIVO"},
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
     private String estado;
 }
-
