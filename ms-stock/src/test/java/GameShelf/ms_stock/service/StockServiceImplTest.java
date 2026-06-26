@@ -502,4 +502,4 @@ class StockServiceImplTest {
                 null
         );
     }
-}
+} 

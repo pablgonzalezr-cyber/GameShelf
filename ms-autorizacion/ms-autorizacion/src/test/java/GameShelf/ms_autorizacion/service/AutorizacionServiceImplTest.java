@@ -1,5 +1,25 @@
 package GameShelf.ms_autorizacion.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import GameShelf.ms_autorizacion.client.RolClient;
 import GameShelf.ms_autorizacion.client.UsuarioClient;
 import GameShelf.ms_autorizacion.dto.AutorizacionRequestDTO;
@@ -10,26 +30,6 @@ import GameShelf.ms_autorizacion.exception.DatoInvalidoException;
 import GameShelf.ms_autorizacion.exception.RecursoNoEncontradoException;
 import GameShelf.ms_autorizacion.model.AutorizacionModel;
 import GameShelf.ms_autorizacion.repository.AutorizacionRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AutorizacionServiceImplTest {
@@ -388,15 +388,33 @@ class AutorizacionServiceImplTest {
     @Test
     void validarAutorizacion_CuandoTienePermisoTotal_RetornaTrue() {
         // Given
-        ValidarAutorizacionRequestDTO validarDTO = crearValidarDTO("prestamos", "gestionar_prestamos");
+        ValidarAutorizacionRequestDTO validarDTO = new ValidarAutorizacionRequestDTO();
+        validarDTO.setUsuarioId(1L);
+        validarDTO.setModulo("PRESTAMOS");
+        validarDTO.setPermiso("GESTIONAR_PRESTAMOS");
 
         when(usuarioClient.obtenerUsuarioPorId(1L)).thenReturn(usuarioActivo);
+
+        when(autorizacionRepository.existsByUsuarioIdAndModuloIgnoreCaseAndPermisoIgnoreCaseAndEstadoIgnoreCase(
+                1L,
+                "PRESTAMOS",
+                "GESTIONAR_PRESTAMOS",
+                "ACTIVO"
+        )).thenReturn(false);
+
         when(autorizacionRepository.existsByUsuarioIdAndModuloIgnoreCaseAndPermisoIgnoreCaseAndEstadoIgnoreCase(
                 1L,
                 "PRESTAMOS",
                 "TOTAL",
                 "ACTIVO"
         )).thenReturn(true);
+
+        when(autorizacionRepository.existsByUsuarioIdAndModuloIgnoreCaseAndPermisoIgnoreCaseAndEstadoIgnoreCase(
+                1L,
+                "PRESTAMOS",
+                "ADMIN",
+                "ACTIVO"
+        )).thenReturn(false);
 
         // When
         boolean respuesta = autorizacionService.validarAutorizacion(validarDTO);
