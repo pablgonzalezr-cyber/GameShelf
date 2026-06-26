@@ -1,0 +1,60 @@
+﻿server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: ms-usuario
+          uri: lb://ms-usuario
+          predicates:
+            - Path=/api/usuarios/**
+        - id: ms-roles
+          uri: lb://ms-roles
+          predicates:
+            - Path=/api/roles/**
+        - id: ms-categoria
+          uri: lb://ms-categoria
+          predicates:
+            - Path=/api/categorias/**
+        - id: ms-videojuego
+          uri: lb://ms-videojuego
+          predicates:
+            - Path=/api/videojuegos/**
+        - id: ms-stock
+          uri: lb://ms-stock
+          predicates:
+            - Path=/api/stocks/**
+        - id: ms-prestamo
+          uri: lb://ms-prestamo
+          predicates:
+            - Path=/api/prestamos/**
+        - id: ms-reserva
+          uri: lb://ms-reserva
+          predicates:
+            - Path=/api/reservas/**
+        - id: ms-multa
+          uri: lb://ms-multa
+          predicates:
+            - Path=/api/multas/**
+        - id: ms-notificacion
+          uri: lb://ms-notificacion
+          predicates:
+            - Path=/api/notificaciones/**
+        - id: ms-autorizacion
+          uri: lb://ms-autorizacion
+          predicates:
+            - Path=/api/autorizaciones/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true

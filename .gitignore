@@ -1,0 +1,21 @@
+
+# ===============================
+# Entrega GameShelf - No subir binarios
+# ===============================
+target/
+**/target/
+apps/
+*.jar
+*.war
+*.zip
+*.mp4
+*.bat
+*.sh
+*.log
+*.tmp
+
+# IDE / sistema
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
