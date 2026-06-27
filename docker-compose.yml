@@ -1,0 +1,281 @@
+﻿services:
+  mysql:
+    image: mysql:8.0
+    container_name: gameshelf-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: America/Santiago
+    ports:
+      - "3308:3306"
+    volumes:
+      - gameshelf_mysql_data:/var/lib/mysql
+    networks:
+      - gameshelf-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  eureka-server:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-eureka
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/eureka-server.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8761:8761"
+    networks:
+      - gameshelf-net
+
+  ms-roles:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-roles
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-roles.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-usuario:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-usuario
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-usuario.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-roles:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-categoria:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-categoria
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-categoria.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-videojuego:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-videojuego
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-videojuego.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-categoria:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-stock:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-stock
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-stock.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-videojuego:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-prestamo:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-prestamo
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-prestamo.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8086:8086"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+      ms-videojuego:
+        condition: service_started
+      ms-stock:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-reserva:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-reserva
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-reserva.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8088:8088"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+      ms-videojuego:
+        condition: service_started
+      ms-stock:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-multa:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-multa
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-multa.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8087:8087"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+      ms-prestamo:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-notificacion:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-notificacion
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-notificacion.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8089:8089"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  ms-autorizacion:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-ms-autorizacion
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/ms-autorizacion.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8090:8090"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+  api-gateway:
+    image: eclipse-temurin:24-jre
+    container_name: gameshelf-api-gateway
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./apps/api-gateway.jar:/app/app.jar
+    command: ["java", "-jar", "app.jar", "--spring.profiles.active=docker"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka-server:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+      ms-roles:
+        condition: service_started
+      ms-categoria:
+        condition: service_started
+      ms-videojuego:
+        condition: service_started
+      ms-stock:
+        condition: service_started
+      ms-prestamo:
+        condition: service_started
+      ms-reserva:
+        condition: service_started
+      ms-multa:
+        condition: service_started
+      ms-notificacion:
+        condition: service_started
+      ms-autorizacion:
+        condition: service_started
+    networks:
+      - gameshelf-net
+
+volumes:
+  gameshelf_mysql_data:
+
+networks:
+  gameshelf-net:
+    driver: bridge
