@@ -12,9 +12,9 @@
 
 |Recurso de entrega|Estado|
 |-|-|
-|Versión nativa `(.jar + .bat)`|Pendiente de carga|
-|Versión Docker|Pendiente de carga|
-|Video de defensa técnica|Pendiente de carga|
+|Versión nativa `(.jar + .bat)`||
+|Versión Docker|                  https://drive.google.com/drive/folders/1sHjeIZu_SorAq_cK9_Kzk9bICi74jYiJ?usp=sharing |
+|Video de defensa técnica|                                                                                             |
 |Subtítulos del video / `subtitulos-video.txt`|Pendiente de carga|
 
 **Observación sobre el video:** la defensa técnica grabada debe tener una duración ideal cercana a **15 minutos** y no superar los **18 minutos**. El video debe incluir subtítulos incrustados o acompañarse del archivo `subtitulos-video.txt`.
@@ -1074,61 +1074,9 @@ start ms-usuario\\ms-usuario\\target\\site\\jacoco\\index.html
 
 \---
 
-## 25\. Archivos que no deben subirse a GitHub
-
-El repositorio debe mantenerse limpio. No se deben subir:
 
 
-target/
-apps/
-\*.jar
-\*.zip
-\*.mp4
-\*.bat
-\*.log
-
-
-Estos archivos se entregan externamente cuando corresponda.
-
-El repositorio sí debe contener:
-
-
-Código fuente.
-pom.xml.
-application.yml.
-application-docker.yml.
-docker-compose.yml.
-README.md.
-Pruebas unitarias.
-.gitignore.
-
-
-\---
-
-## 26\. Estado final del proyecto
-
-|Elemento|Estado|
-|-|-|
-|Maven multi-módulo|Implementado|
-|10+ microservicios|Implementado|
-|Eureka Server|Implementado|
-|API Gateway|Implementado|
-|Feign Client|Implementado|
-|MySQL por microservicio|Implementado|
-|Swagger/OpenAPI|Implementado|
-|Pruebas unitarias|Implementado|
-|Mockito / MockMvc|Implementado|
-|JaCoCo|Implementado|
-|Cobertura mínima 80%|Implementado|
-|Docker Compose|Implementado|
-|Perfil `application-docker.yml`|Implementado|
-|Flujo funcional completo por Gateway|Probado|
-|Video defensa técnica|Pendiente de carga|
-|Enlaces externos de entrega|Pendiente de carga|
-
-\---
-
-## 27\. Conclusión
+## 25\. Conclusión
 
 GameShelf implementa una arquitectura de microservicios completa y funcional, con separación real de responsabilidades, comunicación distribuida, API Gateway, documentación Swagger, pruebas unitarias, cobertura JaCoCo y despliegue local mediante Docker Compose.
 
