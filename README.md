@@ -2,17 +2,13 @@ GameShelf — Sistema de Microservicios para Biblioteca de Videojuegos
 DSY1103 — Desarrollo FullStack I
 Evaluación Parcial 3 — Encargo con Defensa Técnica
 ---
-Enlaces de entrega
 
-
-Recurso de entrega
-
-
-
-Versión nativa /          https://drive.google.com/drive/folders/1zzuC0gbL-93T74-RfB2j-RqMQ3PiiFbV?usp=sharing
-Versión Docker/	          https://drive.google.com/drive/folders/1sHjeIZu_SorAq_cK9_Kzk9bICi74jYiJ?usp=sharing
-Video de defensa técnica/ https://drive.google.com/drive/folders/12pFEUNjIEvo6rBpJHYt0M-fvjXKBCpN1?usp=sharing
-Subtítulos del video / 	  https://drive.google.com/drive/folders/18Hz1eBDkFvkKaUj4dcjEC2xddcKbfcVY?usp=sharing
+| Recurso de entrega | Enlace / Estado |
+|---|---|
+| Versión nativa `(.jar + .bat)` | [Descargar versión nativa]https://drive.google.com/drive/folders/1zzuC0gbL-93T74-RfB2j-RqMQ3PiiFbV?usp=sharing |
+| Versión Docker | [Descargar versión Docker]https://drive.google.com/drive/folders/1sHjeIZu_SorAq_cK9_Kzk9bICi74jYiJ?usp=sharing|
+| Video de defensa técnica | [Ver video de defensa]https://drive.google.com/drive/folders/12pFEUNjIEvo6rBpJHYt0M-fvjXKBCpN1?usp=sharing |
+| Subtítulos del video / `subtitulos-video.txt` | [Descargar subtítulos]https://drive.google.com/drive/folders/18Hz1eBDkFvkKaUj4dcjEC2xddcKbfcVY?usp=sharing|
 
 
 Duración de Video: 15:43
