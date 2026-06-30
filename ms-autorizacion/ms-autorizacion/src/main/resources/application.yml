@@ -6,7 +6,7 @@ spring:
     name: ms-autorizacion
 
   datasource:
-    url: jdbc:mysql://localhost:3307/db_autorizacion?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3307/db_autorizacion?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password:
 

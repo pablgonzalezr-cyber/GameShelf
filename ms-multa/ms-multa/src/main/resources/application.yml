@@ -3,7 +3,7 @@ spring:
     name: ms-multa
 
   datasource:
-    url: jdbc:mysql://localhost:3307/db_multa
+    url: jdbc:mysql://localhost:3307/db_multa?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: ""
 

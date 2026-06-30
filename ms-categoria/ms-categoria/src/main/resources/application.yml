@@ -6,7 +6,7 @@ spring:
     name: ms-categoria
 
   datasource:
-    url: jdbc:mysql://localhost:3307/db_categoria
+    url: jdbc:mysql://localhost:3307/db_categoria?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password:
 
