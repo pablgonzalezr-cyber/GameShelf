@@ -5,7 +5,10 @@ Evaluación Parcial 3 — Encargo con Defensa Técnica
 Enlaces de entrega
 
 
-Recurso de entrega	Enlace / Estado
+Recurso de entrega
+
+
+
 Versión nativa /          https://drive.google.com/drive/folders/1zzuC0gbL-93T74-RfB2j-RqMQ3PiiFbV?usp=sharing
 Versión Docker/	          https://drive.google.com/drive/folders/1sHjeIZu_SorAq_cK9_Kzk9bICi74jYiJ?usp=sharing
 Video de defensa técnica/ https://drive.google.com/drive/folders/12pFEUNjIEvo6rBpJHYt0M-fvjXKBCpN1?usp=sharing
